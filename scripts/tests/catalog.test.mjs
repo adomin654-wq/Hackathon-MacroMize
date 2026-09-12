@@ -1,0 +1,58 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {adaptPilotCatalog,mergePilotMeals} from '../../macromize/lib/pilot-catalog.ts';
+import {loadRestaurantCatalog} from '../../macromize/lib/catalog-service.ts';
+import {loadMobileCatalog} from '../../macromize-ios/src/catalog-client.ts';
+const raw=JSON.parse(readFileSync(new URL('../../reference-data/supabase-pilot-catalog.json',import.meta.url)));
+const curated=JSON.parse(readFileSync(new URL('../../reference-data/hamburg-launch-meals.json',import.meta.url)));
+const pilot=adaptPilotCatalog(raw),merged=mergePilotMeals(curated,pilot);
+test('pilot identity, diet, missing data and curated favourites survive integration',()=>{
+ assert.equal(pilot.length,159);assert.equal(new Set(pilot.map(m=>m.restaurantId)).size,3);
+ assert.equal(pilot.filter(m=>m.dietary?.includes('vegetarian')).length,89);
+ assert.equal(pilot.filter(m=>m.dietary?.includes('vegan')).length,47);
+ assert.equal(merged.length,159);assert.equal(new Set(merged.map(m=>m.id)).size,159);
+ for(const old of curated){const meal=merged.find(m=>m.id===old.id);assert.ok(meal);assert.equal(meal.calories,old.calories);}
+ for(const m of pilot){assert.equal(m.nutritionStatus,'unknown');assert.equal(m.calories,null);}
+ assert.equal(pilot.filter(m=>m.available===false).length,4);
+ assert.equal(pilot.filter(m=>m.priceAmount!==null).length,105);
+ assert.equal(new Set(merged.filter(m=>m.restaurantId==='hh-hig-altes-rathaus').map(m=>`${m.lat},${m.lon}`)).size,1);
+});
+test('approved updates refresh nutrition while preserving the favourite ID',()=>{
+ const old=curated[0],incoming=pilot.find(m=>m.name===old.name);
+ const updated=mergePilotMeals(curated,[{...incoming,nutritionStatus:'verified',calories:650}])[0];
+ assert.equal(updated.id,old.id);assert.equal(updated.calories,650);
+});
+test('only reviewed current source nutrition becomes scoreable',()=>{
+ const d=structuredClone(raw.dishes.find(d=>d.nutrition));
+ d.nutrition={...d.nutrition,review_status:'approved',is_current:true,method:'restaurant_reported'};
+ assert.equal(adaptPilotCatalog({...raw,dishes:[d]})[0].nutritionStatus,'verified');
+ d.nutrition.is_current=false;assert.equal(adaptPilotCatalog({...raw,dishes:[d]})[0].calories,null);
+ d.nutrition.is_current=true;d.nutrition.review_status='rejected';assert.equal(adaptPilotCatalog({...raw,dishes:[d]})[0].calories,null);
+});
+test('catalog rejects malformed sources and duplicate identifiers',()=>{
+ assert.throws(()=>adaptPilotCatalog({dishes:[raw.dishes[0],raw.dishes[0]],observed_at:raw.observed_at}));
+ assert.throws(()=>adaptPilotCatalog({...raw,dishes:[{...raw.dishes[0],source_item_url:'javascript:alert(1)'}]}));
+});
+const config={SUPABASE_CATALOG_URL:'https://example.supabase.co/functions/v1/macromize-catalog',SUPABASE_CATALOG_KEY:'synthetic-test-key-not-a-credential'};
+test('web adapter authenticates server-side and exposes only catalog result',async()=>{
+ let sent;
+ const result=await loadRestaurantCatalog(config,merged,curated,async(url,options)=>{sent={url,options};return Response.json(raw);});
+ assert.equal(result.status,'connected');assert.equal(result.meals.length,159);
+ assert.equal(sent.options.headers.apikey,config.SUPABASE_CATALOG_KEY);
+ assert.equal(sent.options.redirect,'error');assert.ok(!JSON.stringify(result).includes(config.SUPABASE_CATALOG_KEY));
+});
+test('unconfigured, failed, malformed or redirected backend keeps labelled snapshot',async()=>{
+ assert.equal((await loadRestaurantCatalog({},merged,curated)).status,'snapshot');
+ for(const request of [async()=>new Response('denied',{status:403}),async()=>Response.json({wrong:true}),async()=>{throw Error('timeout secret detail');}]){
+  const result=await loadRestaurantCatalog(config,merged,curated,request);assert.equal(result.status,'stale');assert.deepEqual(result.meals,merged);
+ }
+ const invalid=await loadRestaurantCatalog({...config,SUPABASE_CATALOG_URL:'http://example.com'},merged,curated,()=>{throw Error('must not call');});assert.equal(invalid.status,'stale');
+});
+test('native app reads the web catalog without forwarding credentials',async()=>{
+ const endpoint='https://example.com/api/meals';let sent;
+ const result=await loadMobileCatalog(endpoint,merged,curated,undefined,async(url,options)=>{sent=options;return Response.json({status:'connected',meals:merged});});
+ assert.equal(result.status,'connected');assert.equal(result.meals.length,159);assert.equal(sent.credentials,'omit');assert.equal(sent.headers,undefined);
+ const fallback=await loadMobileCatalog(endpoint,merged,curated,undefined,async()=>new Response('sign in',{status:401}));assert.equal(fallback.status,'stale');
+ assert.equal((await loadMobileCatalog(undefined,merged,curated)).status,'snapshot');
+});

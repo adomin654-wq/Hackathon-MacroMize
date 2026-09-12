@@ -8,7 +8,8 @@ import MapView, { Marker, UrlTile } from 'react-native-maps';
 import Slider from '@react-native-community/slider';
 import { defaults, intents, openingInfo, rankMeals, validateTargets, type Targets, type Meal, type Match } from './src/domain';
 import { loadPreferences, savePreferences } from './src/storage';
-import { catalog, catalogConnected } from './src/catalog';
+import { catalog, curatedCatalog } from './src/catalog';
+import { loadMobileCatalog } from './src/catalog-client';
 import { activityStats, chooseMeal, emptyActivity, newId, restaurantKey, removeHistoryEntry, updateHistory, type Activity, type HistoryEntry } from './src/activity';
 import { AdvancedTargets, HistoryScreen, MenuCapture, ReportScreen } from './src/FeatureScreens';
 import { deleteOwnedPhotos, deletePhotoCopy, exportRecords } from './src/photos';
@@ -38,8 +39,11 @@ function MacroMize() {
  const [activity,setActivity]=useState<Activity>(emptyActivity);
  const [savedView,setSavedView]=useState<'Meals'|'Restaurants'>('Meals');
  const [reportMeal,setReportMeal]=useState<Meal|null>(null);
- const meals=[...catalog,...activity.importedMeals];
- const hasMeals=catalogConnected||activity.importedMeals.length>0;
+ const [restaurantCatalog,setRestaurantCatalog]=useState<Meal[]>(catalog);
+ const [catalogStatus,setCatalogStatus]=useState('snapshot');
+ useEffect(()=>{const controller=new AbortController();void loadMobileCatalog(process.env.EXPO_PUBLIC_CATALOG_API_URL,catalog,curatedCatalog,controller.signal).then(result=>{if(!controller.signal.aborted){setRestaurantCatalog(result.meals);setCatalogStatus(result.status);}});return()=>controller.abort();},[]);
+ const meals=[...restaurantCatalog,...activity.importedMeals];
+ const hasMeals=meals.length>0;
  const stats=activityStats(activity,saved);
  const [ready,setReady]=useState(false);
  const [saving,setSaving]=useState(false);
@@ -131,7 +135,7 @@ function MacroMize() {
    <View style={s.mapBottom} pointerEvents="box-none"><Pressable accessibilityRole="button" accessibilityLabel="Use my location" accessibilityState={{disabled:locating}} onPress={()=>void locate()} disabled={locating} style={s.locateButton}>{locating?<ActivityIndicator color={C.green}/>:<Icon name="location-outline" size={23}/>}</Pressable>{hasMeals&&targets.mode==='numeric'&&matches.length>0&&!matches.some(m=>m.exact)&&<Text style={s.closestNotice}>No exact match nearby. Here are the closest options.</Text>}{mapToggle()}{mapPreview()}{preview&&matches.filter(m=>restaurantKey(m)===restaurantKey(preview)).length>1&&<Pressable accessibilityRole="button" accessibilityLabel="Show next recommended dish at this restaurant" onPress={()=>{const same=matches.filter(m=>restaurantKey(m)===restaurantKey(preview));setPreviewId(same[(same.findIndex(m=>m.id===preview.id)+1)%same.length].id);}} style={{backgroundColor:C.white,borderRadius:12,padding:8,alignItems:'center'}}><Text style={{fontSize:12,color:C.green}}>Next dish at this restaurant →</Text></Pressable>}<Pressable accessibilityRole="link" accessibilityLabel="Map attribution: OpenStreetMap, SRTM, OpenTopoMap, CC BY SA" onPress={()=>void Linking.openURL('https://opentopomap.org/about')} style={s.mapAttribution}><Text style={s.mapAttributionText}>Map data © OpenStreetMap, SRTM · Map style © OpenTopoMap (CC-BY-SA)</Text></Pressable></View>
   </>:<>
    <View style={s.listTop}>{searchControls()}{mapToggle()}{locationError!==''&&<Text accessibilityRole="alert" style={s.mapError}>{locationError}</Text>}</View>
-   <ScrollView contentContainerStyle={s.listContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled"><Text accessibilityRole="header" style={s.listTitle}>Your top 3 nearby</Text><Text style={[s.small,{marginBottom:12}]}>Hamburg Zentrum pilot · 6 sourced dishes at one restaurant, plus menus you add. Availability is not live.</Text>{resultContent()}</ScrollView>
+   <ScrollView contentContainerStyle={s.listContent} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled"><Text accessibilityRole="header" style={s.listTitle}>Your top 3 nearby</Text><Text style={[s.small,{marginBottom:12}]}>Hamburg Zentrum pilot · {restaurantCatalog.length} entries at {new Set(restaurantCatalog.map(restaurantKey)).size} restaurants. {catalogStatus==='connected'?'Updated catalog · availability is not live.':catalogStatus==='stale'?'Live refresh unavailable; showing saved menus.':'Saved menu snapshot; availability is not live.'}</Text>{resultContent()}</ScrollView>
   </>}
  </View>}
  const showHeader=screen==='Home'||screen==='Profile'||screen==='Saved';
