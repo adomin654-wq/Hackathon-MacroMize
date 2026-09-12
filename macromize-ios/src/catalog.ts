@@ -1,3 +1,5 @@
+import rawPilot from './supabase-pilot-catalog.json';
+import {adaptPilotCatalog,mergePilotMeals} from './pilot-catalog';
 import type { Meal } from "./domain";
 
 /** Six sourced standard dishes at one Hamburg Zentrum restaurant; no live inventory or citywide coverage. */
@@ -283,5 +285,7 @@ const openingHours: Meal["openingHours"] = {
     }
   ]
 };
-export const catalog: Meal[] = entries.map(meal => ({ ...meal, openingHours }));
+export const curatedCatalog: Meal[] = entries.map(meal => ({ ...meal, openingHours }));
 export const catalogConnected = true;
+
+export const catalog: Meal[] = mergePilotMeals(curatedCatalog,adaptPilotCatalog(rawPilot));

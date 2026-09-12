@@ -1,3 +1,5 @@
+import rawPilot from './supabase-pilot-catalog.json';
+import {adaptPilotCatalog,mergePilotMeals} from '../lib/pilot-catalog';
 import type {Meal} from "@/lib/macromize";
 // Manually checked official menu records; no live inventory connection.
 export const catalogConnected=true;
@@ -257,4 +259,6 @@ const sourceMeals:Meal[]=[
   }
 ];
 
-export const meals:Meal[]=sourceMeals.map(meal=>({...meal,openingHours:{timezone:"Europe/Berlin",source:"https://hansimglueck-burgergrill.de/burger-restaurant/hamburg-altes-rathaus/",checkedAt:"2026-09-12T16:50:00.000Z",weekly:{Mon:[["12:00","22:00"]],Tue:[["12:00","22:00"]],Wed:[["12:00","22:00"]],Thu:[["12:00","22:00"]],Fri:[["12:00","23:00"]],Sat:[["12:00","23:00"]],Sun:[["12:00","22:00"]]}}}));
+export const curatedMeals:Meal[]=sourceMeals.map(meal=>({...meal,openingHours:{timezone:"Europe/Berlin",source:"https://hansimglueck-burgergrill.de/burger-restaurant/hamburg-altes-rathaus/",checkedAt:"2026-09-12T16:50:00.000Z",weekly:{Mon:[["12:00","22:00"]],Tue:[["12:00","22:00"]],Wed:[["12:00","22:00"]],Thu:[["12:00","22:00"]],Fri:[["12:00","23:00"]],Sat:[["12:00","23:00"]],Sun:[["12:00","22:00"]]}}}));
+
+export const meals:Meal[]=mergePilotMeals(curatedMeals,adaptPilotCatalog(rawPilot));
