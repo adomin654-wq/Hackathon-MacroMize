@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "MacroMize",
+    "slug": "macromize-ios",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/mize.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.macromize.mobile",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "MacroMize uses your location to find meals nearby. You can also enter an area manually."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "scheme": "macromize",
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow MacroMize to find meals near you."
+        }
+      ],
+      "expo-sharing",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Choose a menu or meal photo to keep with your MacroMize meals.",
+          "cameraPermission": "Take a menu or meal photo to keep in MacroMize.",
+          "microphonePermission": false
+        }
+      ]
+    ]
+  }
+}
