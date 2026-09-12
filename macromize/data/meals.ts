@@ -1,0 +1,260 @@
+import type {Meal} from "@/lib/macromize";
+// Manually checked official menu records; no live inventory connection.
+export const catalogConnected=true;
+const sourceMeals:Meal[]=[
+  {
+    "id": "hh-hig-rathaus-federvieh",
+    "name": "FEDERVIEH",
+    "restaurant": "HANS IM GLÜCK · Altes Rathaus",
+    "restaurantId": "hh-hig-altes-rathaus",
+    "menuUrl": "https://menu.hansimglueck-burgergrill.de/hamburg-altes-rathaus",
+    "checkedAt": "2026-09-12T16:54:21.133602Z",
+    "lat": 53.5486008,
+    "lon": 9.9924708,
+    "ingredients": [
+      "Chicken breast",
+      "Hard cheese",
+      "Caesar dressing"
+    ],
+    "ingredientsComplete": false,
+    "dietary": null,
+    "excludedIngredientChecks": null,
+    "mealTypes": [
+      "Lunch",
+      "Dinner"
+    ],
+    "calories": 648.5,
+    "protein": 49,
+    "carbs": 27.9,
+    "fat": 37.6,
+    "nutritionStatus": "verified",
+    "nutritionSource": "https://menu.hansimglueck-burgergrill.de/details/federvieh-7282802/info",
+    "confidence": null,
+    "assumptions": "Published chain-recipe averages for the standard portion. Local menu confirms the dish and price; customisations and serving sizes can change nutrition. Listed ingredients are not a complete allergen declaration.",
+    "price": "16.90 €",
+    "priceAmount": 16.9,
+    "currency": "EUR",
+    "cuisine": "Burgers & bowls",
+    "imageUrl": null,
+    "available": null,
+    "sourceKind": "restaurant",
+    "estimationMethod": "published",
+    "openingStatus": "unknown",
+    "openingCheckedAt": null
+  },
+  {
+    "id": "hh-hig-rathaus-bravur",
+    "name": "BRAVUR",
+    "restaurant": "HANS IM GLÜCK · Altes Rathaus",
+    "restaurantId": "hh-hig-altes-rathaus",
+    "menuUrl": "https://menu.hansimglueck-burgergrill.de/hamburg-altes-rathaus",
+    "checkedAt": "2026-09-12T16:54:21.133602Z",
+    "lat": 53.5486008,
+    "lon": 9.9924708,
+    "ingredients": [
+      "Chicken breast",
+      "Avocado cream",
+      "Red onions",
+      "Caesar dressing"
+    ],
+    "ingredientsComplete": false,
+    "dietary": null,
+    "excludedIngredientChecks": null,
+    "mealTypes": [
+      "Lunch",
+      "Dinner"
+    ],
+    "calories": 738,
+    "protein": 48.6,
+    "carbs": 48.5,
+    "fat": 37.4,
+    "nutritionStatus": "verified",
+    "nutritionSource": "https://menu.hansimglueck-burgergrill.de/details/bravur-7282820",
+    "confidence": null,
+    "assumptions": "Published chain-recipe averages for the standard portion. Local menu confirms the dish and price; customisations and serving sizes can change nutrition. Listed ingredients are not a complete allergen declaration.",
+    "price": "16.90 €",
+    "priceAmount": 16.9,
+    "currency": "EUR",
+    "cuisine": "Burgers & bowls",
+    "imageUrl": null,
+    "available": null,
+    "sourceKind": "restaurant",
+    "estimationMethod": "published",
+    "openingStatus": "unknown",
+    "openingCheckedAt": null
+  },
+  {
+    "id": "hh-hig-rathaus-champion",
+    "name": "CHAMPION BOWL",
+    "restaurant": "HANS IM GLÜCK · Altes Rathaus",
+    "restaurantId": "hh-hig-altes-rathaus",
+    "menuUrl": "https://menu.hansimglueck-burgergrill.de/hamburg-altes-rathaus",
+    "checkedAt": "2026-09-12T16:54:21.133602Z",
+    "lat": 53.5486008,
+    "lon": 9.9924708,
+    "ingredients": [
+      "Mushrooms",
+      "Caramelised onions",
+      "Truffle mayo",
+      "Pumpkin seed dressing"
+    ],
+    "ingredientsComplete": false,
+    "dietary": [
+      "vegan"
+    ],
+    "excludedIngredientChecks": null,
+    "mealTypes": [
+      "Lunch",
+      "Dinner"
+    ],
+    "calories": 685,
+    "protein": 18,
+    "carbs": 59,
+    "fat": 40,
+    "nutritionStatus": "verified",
+    "nutritionSource": "https://menu.hansimglueck-burgergrill.de/en/?naehrwerte=true",
+    "confidence": null,
+    "assumptions": "Published chain-recipe averages for the standard portion. Local menu confirms the dish and price; customisations and serving sizes can change nutrition. Listed ingredients are not a complete allergen declaration.",
+    "price": "15.90 €",
+    "priceAmount": 15.9,
+    "currency": "EUR",
+    "cuisine": "Burgers & bowls",
+    "imageUrl": null,
+    "available": null,
+    "sourceKind": "restaurant",
+    "estimationMethod": "published",
+    "openingStatus": "unknown",
+    "openingCheckedAt": null
+  },
+  {
+    "id": "hh-hig-rathaus-rohkostlich",
+    "name": "ROHKÖSTLICH",
+    "restaurant": "HANS IM GLÜCK · Altes Rathaus",
+    "restaurantId": "hh-hig-altes-rathaus",
+    "menuUrl": "https://menu.hansimglueck-burgergrill.de/hamburg-altes-rathaus",
+    "checkedAt": "2026-09-12T16:54:21.133602Z",
+    "lat": 53.5486008,
+    "lon": 9.9924708,
+    "ingredients": [
+      "Mixed salad",
+      "Pumpkin seed dressing"
+    ],
+    "ingredientsComplete": false,
+    "dietary": [
+      "vegan"
+    ],
+    "excludedIngredientChecks": null,
+    "mealTypes": [
+      "Lunch",
+      "Dinner"
+    ],
+    "calories": 400,
+    "protein": 8,
+    "carbs": 33,
+    "fat": 26,
+    "nutritionStatus": "verified",
+    "nutritionSource": "https://menu.hansimglueck-burgergrill.de/en/?naehrwerte=true",
+    "confidence": null,
+    "assumptions": "Published chain-recipe averages for the standard portion. Local menu confirms the dish and price; customisations and serving sizes can change nutrition. Listed ingredients are not a complete allergen declaration.",
+    "price": "12.90 €",
+    "priceAmount": 12.9,
+    "currency": "EUR",
+    "cuisine": "Burgers & bowls",
+    "imageUrl": null,
+    "available": null,
+    "sourceKind": "restaurant",
+    "estimationMethod": "published",
+    "openingStatus": "unknown",
+    "openingCheckedAt": null
+  },
+  {
+    "id": "hh-hig-rathaus-wohltat",
+    "name": "WOHLTAT",
+    "restaurant": "HANS IM GLÜCK · Altes Rathaus",
+    "restaurantId": "hh-hig-altes-rathaus",
+    "menuUrl": "https://menu.hansimglueck-burgergrill.de/hamburg-altes-rathaus",
+    "checkedAt": "2026-09-12T16:54:21.133602Z",
+    "lat": 53.5486008,
+    "lon": 9.9924708,
+    "ingredients": [
+      "Mixed salad",
+      "Grilled vegetables",
+      "Mushrooms",
+      "Truffle mayo",
+      "Balsamic dressing"
+    ],
+    "ingredientsComplete": false,
+    "dietary": [
+      "vegan"
+    ],
+    "excludedIngredientChecks": null,
+    "mealTypes": [
+      "Lunch",
+      "Dinner"
+    ],
+    "calories": 565,
+    "protein": 13,
+    "carbs": 39,
+    "fat": 38,
+    "nutritionStatus": "verified",
+    "nutritionSource": "https://menu.hansimglueck-burgergrill.de/en/?naehrwerte=true",
+    "confidence": null,
+    "assumptions": "Published chain-recipe averages for the standard portion. Local menu confirms the dish and price; customisations and serving sizes can change nutrition. Listed ingredients are not a complete allergen declaration.",
+    "price": "14.90 €",
+    "priceAmount": 14.9,
+    "currency": "EUR",
+    "cuisine": "Burgers & bowls",
+    "imageUrl": null,
+    "available": null,
+    "sourceKind": "restaurant",
+    "estimationMethod": "published",
+    "openingStatus": "unknown",
+    "openingCheckedAt": null
+  },
+  {
+    "id": "hh-hig-rathaus-toskana",
+    "name": "TOSKANA",
+    "restaurant": "HANS IM GLÜCK · Altes Rathaus",
+    "restaurantId": "hh-hig-altes-rathaus",
+    "menuUrl": "https://menu.hansimglueck-burgergrill.de/hamburg-altes-rathaus",
+    "checkedAt": "2026-09-12T16:54:21.133602Z",
+    "lat": 53.5486008,
+    "lon": 9.9924708,
+    "ingredients": [
+      "Mixed salad",
+      "Sun-dried tomatoes",
+      "Hard cheese",
+      "Herb pesto",
+      "Yogurt dressing"
+    ],
+    "ingredientsComplete": false,
+    "dietary": [
+      "vegetarian"
+    ],
+    "excludedIngredientChecks": null,
+    "mealTypes": [
+      "Lunch",
+      "Dinner"
+    ],
+    "calories": 609,
+    "protein": 23,
+    "carbs": 55,
+    "fat": 34,
+    "nutritionStatus": "verified",
+    "nutritionSource": "https://menu.hansimglueck-burgergrill.de/en/?naehrwerte=true",
+    "confidence": null,
+    "assumptions": "Published chain-recipe averages for the standard portion. Local menu confirms the dish and price; customisations and serving sizes can change nutrition. Listed ingredients are not a complete allergen declaration.",
+    "price": "14.90 €",
+    "priceAmount": 14.9,
+    "currency": "EUR",
+    "cuisine": "Burgers & bowls",
+    "imageUrl": null,
+    "available": null,
+    "sourceKind": "restaurant",
+    "estimationMethod": "published",
+    "openingStatus": "unknown",
+    "openingCheckedAt": null
+  }
+];
+
+export const meals:Meal[]=sourceMeals.map(meal=>({...meal,openingHours:{timezone:"Europe/Berlin",source:"https://hansimglueck-burgergrill.de/burger-restaurant/hamburg-altes-rathaus/",checkedAt:"2026-09-12T16:50:00.000Z",weekly:{Mon:[["12:00","22:00"]],Tue:[["12:00","22:00"]],Wed:[["12:00","22:00"]],Thu:[["12:00","22:00"]],Fri:[["12:00","23:00"]],Sat:[["12:00","23:00"]],Sun:[["12:00","22:00"]]}}}));
