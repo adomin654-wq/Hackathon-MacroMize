@@ -1,4 +1,5 @@
 "use client";
+import './personal-onboarding.css';
 import MizeMascot from './mize-mascot';
 import { useEffect,useRef } from 'react';
 import { goals,genders,activities,macroKeys,type PersonalProfile } from '../lib/personal-profile';
@@ -11,7 +12,7 @@ export default function PersonalOnboarding({initial,start=0,onSave,onExit,onFini
  const numeric=f.step===1?'age':'weight';
  return <section className="personal-flow">
  {f.done?<div className="personal-celebration"><div className="celebration-confetti" aria-hidden="true">✦ · ✧ · ✦</div><div className="mize-celebration-loop"><img src="/mize-celebrate.png" alt="Mize celebrates with both arms raised"/></div><h1 ref={heading} tabIndex={-1}>You’re all set!</h1><p>Let’s find a meal near you that fits.</p><p className="subline">You can change your goal and macros anytime in your profile.</p><button className="main-button" onClick={onFinish}>Find my meals →</button></div>:<>
- <div className="personal-progress"><button className="back" disabled={f.saving} onClick={f.back}>← Back</button><span>Step {f.step+1} of 9</span></div><progress max={9} value={f.step+1} aria-label="Onboarding progress"/>
+<div className="personal-progress"><span aria-live="polite">Step {f.step+1} of 9</span></div>
  <div key={f.step} className="personal-question"><p className="eyebrow">A LITTLE ABOUT YOU</p><h1 ref={heading} tabIndex={-1}>{titles[f.step]}</h1><div className="personal-guide"><MizeMascot/><p>{tips[f.step]}</p></div>
  <form id="personal-step" onSubmit={e=>{e.preventDefault();void f.next();}}><fieldset disabled={f.saving} style={{border:0,padding:0,margin:0,minWidth:0}}> 
  {options.length>0&&<div className={`personal-options `}>{options.map(v=><button type="button" key={v} aria-pressed={f.answers[key]===v} onClick={()=>f.answer(key,v)}><span>{v}</span><span aria-hidden="true">{f.answers[key]===v?'✓':'↗'}</span></button>)}</div>}

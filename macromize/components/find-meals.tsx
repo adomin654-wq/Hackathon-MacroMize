@@ -1,4 +1,5 @@
 "use client";
+import MatchScoreInfo from './match-score-info';
 import DishIllustration from './dish-illustration';
 
 import AvocadoScore from './avocado-score';
@@ -38,12 +39,12 @@ export default function FindMeals(p:Props) {
    {p.catalogStatus==='loading'&&<p role="status">Loading menus…</p>}
    {p.catalogStatus==='error'&&<div className="empty-state"><h3>Menus couldn’t be loaded</h3><button className="secondary-button" onClick={p.onRetry}>Try again</button></div>}
    {p.catalogStatus!=='loading'&&p.catalogStatus!=='error'&&!p.matches.length&&<div className="empty-state"><h3>No suitable meals nearby.</h3><p>Adjust your macros above or try another area in Map view.</p></div>}
-   {p.targets.mode==='numeric'&&p.matches.length>0&&!p.matches.some(m=>m.exact)&&<p className="pilot-note">No exact match nearby. Here are the closest options.</p>}
+   {p.targets.mode==='numeric'&&p.matches.length>0&&<MatchScoreInfo comparison={p.targets.comparison}/>}
    <div ref={slider} className={isList?"recommendation-list":"recommendation-slider"} role="region" aria-label="Recommended meals" tabIndex={0} onKeyDown={e=>{if(isList||e.target!==e.currentTarget||!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();const next=visibleMatches[index+(e.key==='ArrowRight'?1:-1)];if(next)select(next);}} onScroll={()=>{if(isList)return;const el=slider.current;if(!el||!el.children.length)return;const children=Array.from(el.children) as HTMLElement[];const closest=children.reduce((best,c,i)=>Math.abs(c.offsetLeft-el.offsetLeft-el.scrollLeft)<Math.abs(children[best].offsetLeft-el.offsetLeft-el.scrollLeft)?i:best,0);if(visibleMatches[closest]?.id!==active?.id)p.onSelect(visibleMatches[closest]);}}>
     {visibleMatches.map((meal,i)=><article className="recommendation-card" key={meal.id} aria-label={`Recommendation ${i+1} of ${visibleMatches.length}`}>
      <button className="compact-meal" onClick={()=>{p.onSelect(meal);p.onOpen(meal);}} aria-label={`View details for ${meal.name}`}>
       {meal.imageUrl?<img className="compact-photo" src={meal.imageUrl} alt=""/>:<DishIllustration meal={meal}/>}
-      <span className="compact-info"><span className="compact-title">{meal.name}</span><span className="compact-restaurant">{meal.restaurant}</span><span className="compact-macros">{meal.calories??'—'} kcal · {meal.protein??'—'} g protein · {meal.distanceKm.toFixed(1)} km</span>{meal.nutritionStatus!=='verified'&&<small>{meal.nutritionStatus==='unknown'?'Nutrition unknown':meal.estimationMethod==='ai'?'KI-geschätzt':'Estimated nutrition'}</small>}</span>
+      <span className="compact-info"><span className="compact-title">{meal.name}</span><span className="compact-restaurant">{meal.restaurant}</span><span className="compact-macros">{meal.calories??'—'} kcal · {meal.protein??'—'} g protein · {meal.distanceKm.toFixed(1)} km</span>{meal.nutritionStatus!=='verified'&&<small>{meal.nutritionStatus==='unknown'?'Nutrition unknown':meal.estimationMethod==='ai'?'AI estimate':'Estimated nutrition'}</small>}</span>
       <span className="compact-score"><AvocadoScore score={meal.score}/></span>
      </button>
     </article>)}

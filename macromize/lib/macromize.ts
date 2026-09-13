@@ -1,3 +1,4 @@
+import { mealFitReasons } from "./meal-fit-reasons.ts";
 import { flexibleScore } from "./personal-profile.ts";
 import { z } from "zod";
 
@@ -63,7 +64,7 @@ export function rankMeals(meals:Meal[], targets:Targets, location:{lat:number;lo
       if(targets.diet!=="Any")reasons.push(`${targets.diet} requirement confirmed`);
       reasons.push(`${distance.toFixed(1)} km away (straight-line distance)`);
       const score=targets.comparison==="flexible"?flexibleScore(m,targets,distance,targets.radius):calorieFit===null||proteinFit===null?null:Math.round(100*(.45*calorieFit+.45*proteinFit+.1*Math.max(0,1-distance/targets.radius)));
-      if(targets.comparison==="flexible"){reasons.splice(0,reasons.length,score===null?"Fit unknown — some nutrition is unavailable":"Compared with your flexible meal targets",...reasons.filter(reason=>!/(Within your calorie target|kcal above your target|Reaches your protein target|g below your protein target|Within your carbohydrate limit|Within your fat limit)/.test(reason)));}
+      if(targets.comparison==="flexible"){reasons.splice(0,reasons.length,...mealFitReasons(m,targets,m.nutritionStatus==='estimated'),...reasons.filter(reason=>!/(Within your calorie target|kcal above your target|Reaches your protein target|g below your protein target|Within your carbohydrate limit|Within your fat limit)/.test(reason)));}
       if(targets.budget!=null)reasons.push("Within your budget");
       if(targets.openNow)reasons.push(m.openingHours?"Open according to published hours; exceptions possible":"Recently confirmed open");
       if(m.sourceKind==="user-menu")reasons.push("From your menu · details confirmed by you");

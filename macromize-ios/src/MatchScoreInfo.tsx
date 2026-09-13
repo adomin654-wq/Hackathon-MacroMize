@@ -1,0 +1,9 @@
+import React,{useRef,useState} from 'react';
+import {AccessibilityInfo,findNodeHandle,Modal,Pressable,ScrollView,Text,View} from 'react-native';
+import {matchScoreExplanation} from './match-score-info';
+export default function MatchScoreInfo({comparison}:{comparison?:string}){
+ const [open,setOpen]=useState(false),trigger=useRef<View>(null),heading=useRef<Text>(null);
+ const focus=(node:View|Text|null)=>{const tag=node&&findNodeHandle(node);if(tag)AccessibilityInfo.setAccessibilityFocus(tag);};
+ return <><Pressable ref={trigger} accessibilityRole="button" accessibilityLabel="About the match score" accessibilityHint="Opens an explanation" onPress={()=>setOpen(true)} style={{alignSelf:'flex-start',paddingVertical:10}}><Text style={{color:'#62705c',fontFamily:'Avenir Next',fontSize:13,textDecorationLine:'underline'}}>About the match score</Text></Pressable>
+ <Modal transparent visible={open} animationType="none" onRequestClose={()=>setOpen(false)} onShow={()=>focus(heading.current)} onDismiss={()=>focus(trigger.current)}><View style={{flex:1,justifyContent:'center',alignItems:'center',padding:20,backgroundColor:'#173E3255'}}><View accessibilityViewIsModal style={{width:'100%',maxWidth:400,maxHeight:'85%',padding:24,borderRadius:22,backgroundColor:'#F7F4EB'}}><ScrollView><Text ref={heading} accessibilityRole="header" style={{fontFamily:'Avenir Next',fontSize:22,fontWeight:'700',color:'#173E32',marginBottom:16}}>How your match score works</Text>{matchScoreExplanation(comparison).map(text=><Text key={text} style={{fontFamily:'Avenir Next',fontSize:15,lineHeight:23,color:'#53604e',marginBottom:12}}>{text}</Text>)}<Pressable accessibilityRole="button" onPress={()=>setOpen(false)} style={{alignSelf:'flex-end',backgroundColor:'#173E32',paddingVertical:12,paddingHorizontal:24,borderRadius:14,marginTop:8}}><Text style={{color:'white',fontFamily:'Avenir Next',fontSize:16}}>Close</Text></Pressable></ScrollView></View></View></Modal></>;
+}

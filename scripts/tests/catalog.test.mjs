@@ -16,7 +16,7 @@ test('pilot identity, diet, missing data and curated favourites survive integrat
  assert.equal(merged.length,raw.dishes.length);assert.equal(new Set(merged.map(m=>m.id)).size,raw.dishes.length);
  for(const old of curated){const meal=merged.find(m=>m.id===old.id);assert.ok(meal);assert.equal(meal.calories,old.calories);}
  for(const m of pilot){const n=raw.dishes.find(d=>d.id===m.id).nutrition;
-  if(n?.method==='ai_estimated'&&n.review_status==='approved'&&n.is_current){assert.equal(m.nutritionStatus,'estimated');assert.equal(m.estimationMethod,'ai');assert.ok(m.calories>0);assert.match(m.assumptions,/KI-geschätzt/);}
+  if(n?.method==='ai_estimated'&&n.review_status==='approved'&&n.is_current){assert.equal(m.nutritionStatus,'estimated');assert.equal(m.estimationMethod,'ai');assert.ok(m.calories>0);assert.match(m.assumptions,/AI estimate/);}
   else {assert.equal(m.nutritionStatus,'unknown');assert.equal(m.calories,null);}
  }
  assert.equal(pilot.filter(m=>m.available===false).length,4);
@@ -43,7 +43,7 @@ test('complete AI values remain estimates with portion assumptions; pending or p
  const d=structuredClone(raw.dishes[0]);
  d.nutrition={kcal:600,protein:30,carbs:60,fat:27,method:'ai_estimated',review_status:'approved',is_current:true,source:d.source_item_url,portion_label:'Eine Portion, ca. 450 g',assumptions:{notes:['Reis 180 g gekocht, Gemüse 150 g, Öl 10 g.']}};
  let [m]=adaptPilotCatalog({...raw,dishes:[d]});
- assert.equal(m.nutritionStatus,'estimated');assert.equal(m.estimationMethod,'ai');assert.equal(m.confidence,'Low');assert.match(m.assumptions,/KI-geschätzt/);assert.match(m.assumptions,/450 g/);assert.match(m.assumptions,/Reis 180 g/);
+ assert.equal(m.nutritionStatus,'estimated');assert.equal(m.estimationMethod,'ai');assert.equal(m.confidence,'Low');assert.match(m.assumptions,/AI estimate/);assert.match(m.assumptions,/450 g/);assert.match(m.assumptions,/Reis 180 g/);
  d.nutrition.fat=null;[m]=adaptPilotCatalog({...raw,dishes:[d]});assert.equal(m.nutritionStatus,'unknown');assert.equal(m.calories,null);
  d.nutrition.fat=27;d.nutrition.review_status='pending';[m]=adaptPilotCatalog({...raw,dishes:[d]});assert.equal(m.nutritionStatus,'unknown');
 });

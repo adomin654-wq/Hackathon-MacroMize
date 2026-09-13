@@ -1,3 +1,4 @@
+import { mealFitReasons } from "./meal-fit-reasons.ts";
 import { flexibleScore } from "./personal-profile.ts";
 /** Device-independent meal preferences and ranking. No account or network state lives here. */
 export type Targets = {
@@ -334,7 +335,7 @@ export function rankMeals(meals: Meal[], input: Targets, location: Location, now
       const score = targets.comparison === "flexible" ? flexibleScore(cleanMeal,{calories:targets.calories,protein:targets.protein,fat:targets.fatMax,carbs:targets.carbsMax},distance,targets.radius) : goal !== null || calorieFit === null || proteinFit === null ? null
         : Math.round(100 * (0.45 * calorieFit + 0.45 * proteinFit
           + 0.1 * Math.max(0, 1 - distance / targets.radius)));
-      if(targets.comparison === "flexible")reasons.splice(0,reasons.length,score===null?"Fit unknown — some nutrition is unavailable":"Compared with your flexible meal targets",...reasons.filter(reason=>!/(Within your calorie target|kcal above your target|Reaches your protein target|g below your protein target|Within your carbohydrate limit|Within your fat limit)/.test(reason)));
+      if(targets.comparison === "flexible")reasons.splice(0,reasons.length,...mealFitReasons(cleanMeal,{calories:targets.calories,protein:targets.protein,fat:targets.fatMax,carbs:targets.carbsMax},meal.nutritionStatus==='estimated'),...reasons.filter(reason=>!/(Within your calorie target|kcal above your target|Reaches your protein target|g below your protein target|Within your carbohydrate limit|Within your fat limit)/.test(reason)));
       return {
         ...cleanMeal,
         score,

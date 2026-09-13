@@ -53,7 +53,7 @@ export function adaptPilotCatalog(input:unknown):CatalogMeal[]{
   // Chain-exclusive Express products are not branch inventory at Jungfernstieg.
   const express=/nur in express stores/i.test(name);
   const assumptions=record(n?.assumptions)?n.assumptions:null;
-  const notes=estimated?[n?.method==='ai_estimated'?'KI-geschätzt anhand von Titel und Beschreibung; keine bestätigten Restaurantwerte.':'Aus einer Rezeptannahme berechnet; keine bestätigten Restaurantwerte.',text(n?.portion_label),...strings(assumptions?.notes),text(raw.description),...strings(raw.quality_notes).map(note=>note.replace('Nährwerte und Portionsgrößen unbekannt.', 'Restaurant-Nährwerte und tatsächliche Portionsgrößen nicht bestätigt.'))]:[text(raw.description),text(n?.portion_label),...strings(raw.quality_notes)];
+  const notes=estimated?[n?.method==='ai_estimated'?'AI estimate based on the dish name and description; not confirmed by the restaurant.':'Calculated from an assumed recipe; not confirmed by the restaurant.',text(n?.portion_label),...strings(assumptions?.notes),text(raw.description),...strings(raw.quality_notes).map(note=>note.replace('Nährwerte und Portionsgrößen unbekannt.', 'Restaurant nutrition and actual portion sizes are not confirmed.'))]:[text(raw.description),text(n?.portion_label),...strings(raw.quality_notes)];
   if(n&&!approved)notes.push('Chain nutrition awaits review; no numerical match is calculated from it.');
   if(raw.source_scope==='chain')notes.push('Chain menu: branch availability and price are not confirmed.');
   if(express)notes.push('Express-only item; excluded from this branch’s recommendations.');

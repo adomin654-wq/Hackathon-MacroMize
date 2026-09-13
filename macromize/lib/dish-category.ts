@@ -20,4 +20,4 @@ export function dishCategory(meal:{name:string;restaurant?:string;assumptions?:s
  if(/steak|filetto|pannfisch|labskaus|schnitzel|ribs|haxe|wurst|würst|roulade|klopse|carpaccio|vitello|pulpo|gamberoni|cordon bleu|brauerschmaus/i.test(meal.name))return 'plate';
  return classify(meal.menu_category||'')||'plate';
 }
-export const dishLabels:Record<DishCategory,string>={burger:'Burger',bowl:'Bowl / Salat',pasta:'Pasta',soup:'Suppe / Ramen',curry:'Curry',potato:'Ofenkartoffel',pizza:'Pizza',wrap:'Wrap / Sandwich',dessert:'Dessert',plate:'Gericht'};
+export const dishLabels:Record<DishCategory,string>={burger:'Burger',bowl:'Bowl / Salad',pasta:'Pasta',soup:'Soup / Ramen',curry:'Curry',potato:'Baked potato',pizza:'Pizza',wrap:'Wrap / Sandwich',dessert:'Dessert',plate:'Dish'};
