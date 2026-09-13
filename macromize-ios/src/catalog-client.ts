@@ -28,7 +28,7 @@ function parseMeals(input:unknown):{status:string;meals:CatalogMeal[]}{
    estimationMethod:status==='estimated'&&m.estimationMethod==='ai'?'ai':status==='verified'?'published':'unknown',
    assumptions:typeof m.assumptions==='string'?m.assumptions.slice(0,1500):null,
    price:typeof m.price==='string'?m.price.slice(0,100):null,priceAmount,currency:m.currency==='EUR'?'EUR':'',cuisine:typeof m.cuisine==='string'?m.cuisine.slice(0,80):'',
-   imageUrl:link(m.imageUrl),available:m.available as boolean|null};
+   imageUrl:link(m.imageUrl),imageSourceUrl:m.imageSourceUrl?link(m.imageSourceUrl):null,imageAttribution:typeof m.imageAttribution==='string'?m.imageAttribution.slice(0,150):null,available:m.available as boolean|null};
  });
  return {status:String(data.status),meals};
 }

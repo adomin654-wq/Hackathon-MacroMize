@@ -18,7 +18,7 @@ export type Meal = {
   mealTypes:string[]; calories:number|null; protein:number|null; carbs:number|null; fat:number|null;
   nutritionStatus:"verified"|"estimated"|"unknown"; nutritionSource:string|null;
   confidence:"High"|"Medium"|"Low"|null; assumptions:string|null;
-  price:string|null; imageUrl:string|null; available:boolean|null;
+  price:string|null; imageUrl:string|null; imageSourceUrl?:string|null; imageAttribution?:string|null; available:boolean|null;
   restaurantId?:string; priceAmount?:number|null; currency?:string; cuisine?:string;
   openingHours?:{timezone:string;source:string;checkedAt:string;weekly:Record<string,[string,string][]>};
   openingStatus?:"open"|"closed"|"unknown"; openingCheckedAt?:string|null;

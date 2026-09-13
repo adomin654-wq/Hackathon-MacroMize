@@ -8,7 +8,7 @@ export type CatalogMeal = {
  estimationMethod?:'published'|'user'|'ai'|'unknown';
  confidence:'High'|'Medium'|'Low'|null; assumptions:string|null;
  price:string|null; priceAmount:number|null; currency:string; cuisine:string;
- imageUrl:string|null; available:boolean|null;
+ imageUrl:string|null; imageSourceUrl?:string|null; imageAttribution?:string|null; available:boolean|null;
 };
 type RecordValue = Record<string,unknown>;
 const record=(v:unknown):v is RecordValue=>!!v&&typeof v==='object'&&!Array.isArray(v);
@@ -57,6 +57,7 @@ export function adaptPilotCatalog(input:unknown):CatalogMeal[]{
   if(n&&!approved)notes.push('Chain nutrition awaits review; no numerical match is calculated from it.');
   if(raw.source_scope==='chain')notes.push('Chain menu: branch availability and price are not confirmed.');
   if(express)notes.push('Express-only item; excluded from this branch’s recommendations.');
+  const photo=record(raw.photo)&&raw.photo.kind==='dish'&&raw.photo.dish_name===name&&url(raw.photo.url)&&url(raw.photo.source_url)?raw.photo:null;
   const priceAmount=number(raw.price_eur,1000);
   return {id,name,restaurant:venue.name,restaurantId:venue.id,menuUrl,checkedAt,
    lat:venue.lat,lon:venue.lon,ingredients:strings(raw.ingredient_mentions).length?strings(raw.ingredient_mentions):null,
@@ -68,7 +69,7 @@ export function adaptPilotCatalog(input:unknown):CatalogMeal[]{
    estimationMethod:published?'published':estimated&&n?.method==='ai_estimated'?'ai':'unknown',
    confidence:estimated?'Low':null,assumptions:notes.filter(Boolean).join(' ').slice(0,1500)||null,
    price:priceAmount===null?null:`${priceAmount.toFixed(2)} €${raw.price_scope==='chain'?' · chain price':''}`,
-   priceAmount,currency:'EUR',cuisine:venue.cuisine,imageUrl:null,available:express?false:null};
+   priceAmount,currency:'EUR',cuisine:venue.cuisine,imageUrl:photo?url(photo.url):null,imageSourceUrl:photo?url(photo.source_url):null,imageAttribution:photo?text(photo.attribution,150):null,available:express?false:null};
  }).filter((m):m is CatalogMeal=>m!==null);
 }
 

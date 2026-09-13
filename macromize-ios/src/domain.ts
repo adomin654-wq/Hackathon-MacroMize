@@ -42,6 +42,8 @@ export type Meal = {
   assumptions: string | null;
   price: string | null;
   imageUrl: string | null;
+  imageSourceUrl?: string | null;
+  imageAttribution?: string | null;
   available: boolean | null;
   priceAmount?: number | null;
   currency?: string | null;
