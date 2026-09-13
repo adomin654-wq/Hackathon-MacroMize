@@ -1,7 +1,8 @@
 // Administrator-only, ten-dish pilot. No frontend credentials or automatic retries.
 import postgres from 'npm:postgres@3.4.3';
 const model='gpt-5-mini';
-const version='openai-menu-pilot-v1';
+// Deliberate retry after v1 failed with credit_balance_exhausted; retain its audit log.
+const version='openai-menu-pilot-v2';
 const reply=(body:unknown,status=200)=>Response.json(body,{status});
 const macro={type:'number',minimum:0,maximum:3000};
 const itemSchema={type:'object',additionalProperties:false,properties:{id:{type:'string'},sufficient:{type:'boolean'},portion:{type:'string'},assumptions:{type:'array',items:{type:'string'}},kcal:macro,protein:macro,carbs:macro,fat:macro,kcal_low:macro,kcal_high:macro},required:['id','sufficient','portion','assumptions','kcal','protein','carbs','fat','kcal_low','kcal_high']};
