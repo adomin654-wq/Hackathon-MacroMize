@@ -23,10 +23,17 @@ const venues:Record<string,{id:string;name:string;lat:number;lon:number;cuisine:
 
 export function adaptPilotCatalog(input:unknown):CatalogMeal[]{
  if(!record(input)||!Array.isArray(input.dishes)||input.dishes.length>2000)throw Error('Invalid pilot catalog');
+ const additional:typeof venues={};
+ if(Array.isArray(input.venues))for(const v of input.venues){
+  if(!record(v))throw Error('Invalid venue');
+  const lat=number(v.latitude,90),lon=number(v.longitude,180),slug=text(v.slug,100),name=text(v.name,150);
+  if(!slug||!name||lat===null||lon===null||lat<53.50||lat>53.60||lon<9.90||lon>10.10||!url(v.location_source_url)||!url(v.menu_url))throw Error('Invalid Hamburg venue location or source');
+  additional[slug]={id:slug,name,lat,lon,cuisine:'Restaurant'};
+ }
  const ids=new Set<string>();
  return input.dishes.map((raw):CatalogMeal|null=>{
   if(!record(raw))throw Error('Invalid catalog entry');
-  const venue=venues[text(raw.slug)];if(!venue)return null;
+  const venue=venues[text(raw.slug)]||additional[text(raw.slug)];if(!venue)return null;
   if(raw.status==='inactive')return null;
   const id=text(raw.id,100),name=text(raw.name,150),menuUrl=url(raw.source_item_url);
   const checkedAt=text(raw.observed_at||input.observed_at,100);

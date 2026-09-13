@@ -7,15 +7,17 @@ import {loadMobileCatalog} from '../../macromize-ios/src/catalog-client.ts';
 const raw=JSON.parse(readFileSync(new URL('../../reference-data/supabase-pilot-catalog.json',import.meta.url)));
 const curated=JSON.parse(readFileSync(new URL('../../reference-data/hamburg-launch-meals.json',import.meta.url)));
 const pilot=adaptPilotCatalog(raw),merged=mergePilotMeals(curated,pilot);
+const originalSlugs=new Set(['hamburg-hans-altes-rathaus','hamburg-dean-jungfernstieg','hamburg-peter-bleichenhof']);
+const original=adaptPilotCatalog({...raw,dishes:raw.dishes.filter(d=>originalSlugs.has(d.slug))});
 test('pilot identity, diet, missing data and curated favourites survive integration',()=>{
- assert.equal(pilot.length,159);assert.equal(new Set(pilot.map(m=>m.restaurantId)).size,3);
- assert.equal(pilot.filter(m=>m.dietary?.includes('vegetarian')).length,89);
- assert.equal(pilot.filter(m=>m.dietary?.includes('vegan')).length,47);
- assert.equal(merged.length,159);assert.equal(new Set(merged.map(m=>m.id)).size,159);
+ assert.equal(original.length,159);assert.equal(new Set(original.map(m=>m.restaurantId)).size,3);
+ assert.equal(original.filter(m=>m.dietary?.includes('vegetarian')).length,89);
+ assert.equal(original.filter(m=>m.dietary?.includes('vegan')).length,47);
+ assert.equal(merged.length,raw.dishes.length);assert.equal(new Set(merged.map(m=>m.id)).size,raw.dishes.length);
  for(const old of curated){const meal=merged.find(m=>m.id===old.id);assert.ok(meal);assert.equal(meal.calories,old.calories);}
  for(const m of pilot){assert.equal(m.nutritionStatus,'unknown');assert.equal(m.calories,null);}
  assert.equal(pilot.filter(m=>m.available===false).length,4);
- assert.equal(pilot.filter(m=>m.priceAmount!==null).length,105);
+ assert.equal(original.filter(m=>m.priceAmount!==null).length,105);
  assert.equal(new Set(merged.filter(m=>m.restaurantId==='hh-hig-altes-rathaus').map(m=>`${m.lat},${m.lon}`)).size,1);
 });
 test('approved updates refresh nutrition while preserving the favourite ID',()=>{
@@ -38,7 +40,7 @@ const config={SUPABASE_CATALOG_URL:'https://example.supabase.co/functions/v1/mac
 test('web adapter authenticates server-side and exposes only catalog result',async()=>{
  let sent;
  const result=await loadRestaurantCatalog(config,merged,curated,async(url,options)=>{sent={url,options};return Response.json(raw);});
- assert.equal(result.status,'connected');assert.equal(result.meals.length,159);
+ assert.equal(result.status,'connected');assert.equal(result.meals.length,raw.dishes.length);
  assert.equal(sent.options.headers.apikey,config.SUPABASE_CATALOG_KEY);
  assert.equal(sent.options.redirect,'error');assert.ok(!JSON.stringify(result).includes(config.SUPABASE_CATALOG_KEY));
 });
@@ -52,7 +54,15 @@ test('unconfigured, failed, malformed or redirected backend keeps labelled snaps
 test('native app reads the web catalog without forwarding credentials',async()=>{
  const endpoint='https://example.com/api/meals';let sent;
  const result=await loadMobileCatalog(endpoint,merged,curated,undefined,async(url,options)=>{sent=options;return Response.json({status:'connected',meals:merged});});
- assert.equal(result.status,'connected');assert.equal(result.meals.length,159);assert.equal(sent.credentials,'omit');assert.equal(sent.headers,undefined);
+ assert.equal(result.status,'connected');assert.equal(result.meals.length,raw.dishes.length);assert.equal(sent.credentials,'omit');assert.equal(sent.headers,undefined);
  const fallback=await loadMobileCatalog(endpoint,merged,curated,undefined,async()=>new Response('sign in',{status:401}));assert.equal(fallback.status,'stale');
  assert.equal((await loadMobileCatalog(undefined,merged,curated)).status,'snapshot');
+});
+
+test('additional venues require source-backed Hamburg coordinates and preserve unknown nutrition',()=>{
+ const venue={slug:'test-hamburg',name:'Test venue',latitude:53.55,longitude:9.99,location_source_url:'https://www.openstreetmap.org/node/123',menu_url:'https://example.com/menu'};
+ const input={...raw,venues:[venue],dishes:[{...raw.dishes[0],slug:venue.slug,nutrition:null}]};
+ const [meal]=adaptPilotCatalog(input);assert.equal(meal.restaurant,'Test venue');assert.equal(meal.lat,53.55);assert.equal(meal.calories,null);
+ assert.throws(()=>adaptPilotCatalog({...input,venues:[{...venue,latitude:0}]}));
+ assert.throws(()=>adaptPilotCatalog({...input,venues:[{...venue,location_source_url:'javascript:bad'}]}));
 });

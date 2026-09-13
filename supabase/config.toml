@@ -3,3 +3,6 @@ verify_jwt = true
 
 [functions.nutrition-estimate]
 verify_jwt = true
+
+[functions.hamburg-expansion]
+verify_jwt = true
