@@ -1,0 +1,77 @@
+{
+  "note": "Externally hosted restaurant product photos, attributed and matched by menu context. No rights transfer or permission is asserted by inclusion.",
+  "photos": [
+    {
+      "dish_id": "7e9621ba-67c1-4207-840d-28cf21fcf642",
+      "dish_name": "Caesar",
+      "url": "https://www.erdapfel-hamburg.de/mediafiles/48665117640930221183.jpg",
+      "source_url": "https://www.erdapfel-hamburg.de/de/index.php",
+      "kind": "dish",
+      "attribution": "Erdapfel Hamburg · Restaurantfoto",
+      "observed_at": "2026-09-13"
+    },
+    {
+      "dish_id": "d483592f-cf19-47a4-a643-2c8556ac0173",
+      "dish_name": "Mavocado",
+      "url": "https://www.erdapfel-hamburg.de/mediafiles/23912917640921421174.jpg",
+      "source_url": "https://www.erdapfel-hamburg.de/de/index.php",
+      "kind": "dish",
+      "attribution": "Erdapfel Hamburg · Restaurantfoto",
+      "observed_at": "2026-09-13"
+    },
+    {
+      "dish_id": "fe688111-f104-4ea4-ad71-7609a36a3f96",
+      "dish_name": "Prinzessin auf der Erbse",
+      "url": "https://www.erdapfel-hamburg.de/mediafiles/4072517640928101181.jpg",
+      "source_url": "https://www.erdapfel-hamburg.de/de/index.php",
+      "kind": "dish",
+      "attribution": "Erdapfel Hamburg · Restaurantfoto",
+      "observed_at": "2026-09-13"
+    },
+    {
+      "dish_id": "cd30d6e8-fdd0-4f20-9981-1d13ebc44fc0",
+      "dish_name": "Zicklein",
+      "url": "https://www.erdapfel-hamburg.de/mediafiles/86331417640919001172.jpg",
+      "source_url": "https://www.erdapfel-hamburg.de/de/index.php",
+      "kind": "dish",
+      "attribution": "Erdapfel Hamburg · Restaurantfoto",
+      "observed_at": "2026-09-13"
+    },
+    {
+      "dish_id": "1f09c630-cb72-4f8c-b4be-f954c0848976",
+      "dish_name": "Caesar Chicken Salad",
+      "url": "https://deananddavid.com/wp-content/uploads/2024/01/2022-02-dd-caesar-chicken-1200x800px.jpg",
+      "source_url": "https://deananddavid.com/speisen-und-getraenke/",
+      "kind": "dish",
+      "attribution": "dean&david · Produktfoto der Kette",
+      "observed_at": "2026-09-13"
+    },
+    {
+      "dish_id": "049b95b5-02e0-4770-8d40-9b4dfedec7cd",
+      "dish_name": "Red Thai Chicken Curry (scharf)",
+      "url": "https://deananddavid.com/wp-content/uploads/2024/01/2024-01-dd_Red-Thai-Chicken-Curry-App-Produktbilder-1200x800px.jpg",
+      "source_url": "https://deananddavid.com/speisen-und-getraenke/",
+      "kind": "dish",
+      "attribution": "dean&david · Produktfoto der Kette",
+      "observed_at": "2026-09-13"
+    },
+    {
+      "dish_id": "49f45998-892e-4f04-ba32-26a0ec99b505",
+      "dish_name": "Mini Chicken Bowl",
+      "url": "https://deananddavid.com/wp-content/uploads/2022/03/2022-03-dd-Mini-Chicken-Bowl-1200x800px.jpg",
+      "source_url": "https://deananddavid.com/speisen-und-getraenke/",
+      "kind": "dish",
+      "attribution": "dean&david · Produktfoto der Kette",
+      "observed_at": "2026-09-13"
+    },
+    {
+      "dish_id": "c8535519-b309-4b12-b252-60485df5bc61",
+      "dish_name": "Vegan Sweet Potato Sandwich",
+      "url": "https://deananddavid.com/wp-content/uploads/2022/03/2021_10-27_deananddavid-vegan-sweet-potato-866-scaled.jpg",
+      "source_url": "https://deananddavid.com/speisen-und-getraenke/",
+      "kind": "dish",
+      "attribution": "dean&david · Produktfoto der Kette",
+      "observed_at": "2026-09-13"
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+import {dishCategory,dishLabels} from '../lib/dish-category';
+export default function DishIllustration({meal,detail=false}:{meal:{name:string;restaurant?:string;assumptions?:string|null;illustrationCategory?:string};detail?:boolean}){const category=dishCategory(meal);return <span className={detail?'dish-illustration detail-illustration':'compact-photo dish-illustration'} role="img" aria-label={dishLabels[category]+' · Illustration'}><img src={'/dish-icons/'+category+'.svg'} alt="" aria-hidden="true"/>{detail&&<small>{dishLabels[category]} · Illustration</small>}</span>;}

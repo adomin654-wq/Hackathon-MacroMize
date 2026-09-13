@@ -1,6 +1,6 @@
 # MacroMize for iOS
 
-> Integration branch update: Both apps now include a 159-entry snapshot across three Hamburg restaurants. Six curated dishes retain their verified nutrition and IDs; other unreviewed values remain unknown. The protected Supabase connection is prepared but not deployed. See [INTEGRATION.md](../INTEGRATION.md) for configuration and current validation. Descriptions of the original six-dish pilot below document the baseline.
+> Integration branch update: Both apps now include a 249-entry snapshot across 22 Hamburg restaurants. Six curated dishes retain their verified nutrition and IDs; other unreviewed values remain unknown. The protected Supabase connection is prepared but not deployed. See [INTEGRATION.md](../INTEGRATION.md) for configuration and current validation. Descriptions of the original six-dish pilot below document the baseline.
 
 Native React Native / Expo SDK 57 app based on the MacroMize reference. Warm off-white, forest green, white home choices and outline Meal Type icons. Home reads “Find food that fits your goals”.
 
