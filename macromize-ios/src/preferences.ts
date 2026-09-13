@@ -1,6 +1,7 @@
+import { validateProfile, type PersonalProfile } from "./personal-profile.ts";
 import { defaults, validateTargets, type Targets } from "./domain.ts";
 import { emptyActivity, validateActivity, type Activity } from "./activity.ts";
-export type Preferences = { targets: Targets; saved: string[]; activity: Activity; onboardingCompleted: boolean };
+export type Preferences = { profile?: PersonalProfile | null; targets: Targets; saved: string[]; activity: Activity; onboardingCompleted: boolean };
 
 
 const unreadableMessage = "Your saved preferences could not be read. The stored data has been kept unchanged. Please try again before saving changes.";
@@ -16,6 +17,7 @@ export function validatePreferences(input: unknown): Preferences {
   }
   if (candidate.onboardingCompleted !== undefined && typeof candidate.onboardingCompleted !== "boolean") throw new Error("Invalid onboarding status");
   return {
+    profile: validateProfile(candidate.profile),
     onboardingCompleted: candidate.onboardingCompleted === undefined ? true : candidate.onboardingCompleted,
     targets: validateTargets(candidate.targets),
     saved: [...new Set(candidate.saved as string[])],
@@ -35,4 +37,4 @@ export function parseStored(raw: string): Preferences {
 }
 
 
-export function freshPreferences(): Preferences { return { targets: validateTargets(defaults), saved: [], activity: emptyActivity(), onboardingCompleted: false }; }
+export function freshPreferences(): Preferences { return { profile: null, targets: validateTargets(defaults), saved: [], activity: emptyActivity(), onboardingCompleted: false }; }

@@ -26,7 +26,7 @@ test('unavailable, out-of-radius and unsourced records do not appear',()=>{
  assert.equal(rankMeals([{...fixture,lat:50},{...fixture,available:false},{...fixture,menuUrl:''}],defaults,origin).length,0);
 });
 test('targets reject invalid or unbounded input',()=>{
- for(const calories of [-1,0,3001,NaN])assert.equal(targetsSchema.safeParse({...defaults,calories}).success,false);
+ for(const calories of [-1,0,10001,NaN])assert.equal(targetsSchema.safeParse({...defaults,calories}).success,false);
 });
 test('unknown status suppresses numeric values and exact match',()=>{
  const result=rankMeals([{...fixture,nutritionStatus:'unknown'}],defaults,origin)[0];

@@ -1,5 +1,7 @@
+import { flexibleScore } from "./personal-profile.ts";
 /** Device-independent meal preferences and ranking. No account or network state lives here. */
 export type Targets = {
+  comparison?: "limits" | "flexible";
   mode: "numeric" | "goal";
   goal: string;
   calories: number;
@@ -112,12 +114,13 @@ function cleanText(value: unknown, fallback: string, label: string, max: number,
 /** Validates an entire preference object and returns a clean copy; never coerces strings to numbers. */
 export function validateTargets(input: unknown): Targets {
   if (!isRecord(input)) throw new Error("Your meal targets could not be read.");
+  if(input.comparison!==undefined&&!['limits','flexible'].includes(input.comparison as string))throw Error("Invalid comparison mode");
   const mode = input.mode === undefined ? defaults.mode : input.mode;
   if (mode !== "numeric" && mode !== "goal") throw new Error("Choose a meal goal or your own macro targets.");
   const goal = cleanText(input.goal, defaults.goal, "Meal goal", 100);
   if (mode === "goal" && !intents.some((intent) => intent.title === goal)) throw new Error("Choose one of the available meal goals.");
-  const calories = requireNumber(input.calories, "Calories", 100, 3000);
-  const protein = requireNumber(input.protein, "Protein", 0, 250);
+  const calories = requireNumber(input.calories, "Calories", 100, 10000);
+  const protein = requireNumber(input.protein, "Protein", 0, 700);
   const radius = requireNumber(input.radius, "Search radius", 0.5, 20);
   if (!mealTypes.includes(input.mealType as Targets["mealType"])) {
     throw new Error("Choose Breakfast, Lunch, Dinner, or Snack.");
@@ -143,12 +146,13 @@ export function validateTargets(input: unknown): Targets {
   }
   if (input.openNow !== undefined && typeof input.openNow !== "boolean") throw new Error("The opening-hours filter could not be read.");
   return {
+    comparison: input.comparison === "flexible" ? "flexible" : "limits",
     mode,
     goal,
     calories,
     protein,
-    carbsMax: optionalNumber(input.carbsMax, "Carbohydrate limit", 500),
-    fatMax: optionalNumber(input.fatMax, "Fat limit", 250),
+    carbsMax: optionalNumber(input.carbsMax, "Carbohydrate limit", 2000),
+    fatMax: optionalNumber(input.fatMax, "Fat limit", 500),
     budgetMax: optionalNumber(input.budgetMax, "Budget in EUR", 1000),
     cuisine: cleanText(input.cuisine, defaults.cuisine, "Cuisine", 60),
     openNow: input.openNow === true,
@@ -285,7 +289,7 @@ export function rankMeals(meals: Meal[], input: Targets, location: Location, now
     .filter((meal) => targets.budgetMax === null || (typeof meal.priceAmount === "number" && Number.isFinite(meal.priceAmount)
       && meal.priceAmount >= 0 && meal.priceAmount <= targets.budgetMax && meal.currency?.toUpperCase() === "EUR"))
     .filter((meal) => !targets.openNow || openingInfo(meal, now).open === true)
-    .filter((meal) => withinLimit(usableNutrition(meal.carbs, meal.nutritionStatus), targets.carbsMax)
+    .filter((meal) => targets.comparison === "flexible" || withinLimit(usableNutrition(meal.carbs, meal.nutritionStatus), targets.carbsMax)
       && withinLimit(usableNutrition(meal.fat, meal.nutritionStatus), targets.fatMax))
     .map((meal): Match => {
       const distance = distanceKm(location, meal);
@@ -324,15 +328,16 @@ export function rankMeals(meals: Meal[], input: Targets, location: Location, now
       }
       if (meal.available === null) reasons.push("Current availability is unconfirmed");
       reasons.push(`${distance.toFixed(1)} km away (straight-line distance)`);
-      const score = goal !== null || calorieFit === null || proteinFit === null ? null
+      const score = targets.comparison === "flexible" ? flexibleScore(cleanMeal,{calories:targets.calories,protein:targets.protein,fat:targets.fatMax,carbs:targets.carbsMax},distance,targets.radius) : goal !== null || calorieFit === null || proteinFit === null ? null
         : Math.round(100 * (0.45 * calorieFit + 0.45 * proteinFit
           + 0.1 * Math.max(0, 1 - distance / targets.radius)));
+      if(targets.comparison === "flexible")reasons.splice(0,reasons.length,score===null?"Fit unknown — some nutrition is unavailable":"Compared with your flexible meal targets",...reasons.filter(reason=>!/(Within your calorie target|kcal above your target|Reaches your protein target|g below your protein target|Within your carbohydrate limit|Within your fat limit)/.test(reason)));
       return {
         ...cleanMeal,
         score,
         distanceKm: distance,
         reasons,
-        exact: goal === null && calorieFit === 1 && proteinFit === 1 && meal.nutritionStatus === "verified" && meal.provenance !== "user",
+        exact: (targets.comparison !== "flexible" || score === 100) && goal === null && calorieFit === 1 && proteinFit === 1 && meal.nutritionStatus === "verified" && meal.provenance !== "user",
         goalFit: goal?.fit ?? null,
       };
     })
@@ -358,5 +363,5 @@ export const intents = [
   { title: "A bigger dinner later", description: "A lighter meal now, with some protein.", calories: 450, protein: 30 },
 ];
 
-export function simplifyTargets(t:Targets):Targets{return {...t,mode:'numeric',diet:t.diet==='Vegan'?'Vegan':'Any',mealType:'Lunch',radius:2,exclusions:[],budgetMax:null,cuisine:'Any',openNow:false,remainingCalories:null,laterMeal:''};}
+export function simplifyTargets(t:Targets):Targets{return {...t,mode:'numeric',diet:t.diet,mealType:'Lunch',radius:2,exclusions:[],budgetMax:null,cuisine:'Any',openNow:false,remainingCalories:null,laterMeal:''};}
 export function rankSimpleMeals(meals:Meal[],targets:Targets,location:Location){return rankMeals(meals,simplifyTargets(targets),location,Date.now(),true);}

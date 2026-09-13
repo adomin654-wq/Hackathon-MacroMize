@@ -4,6 +4,7 @@
 import { sqliteTable, text, index, integer } from "drizzle-orm/sqlite-core";
 export const guestState = sqliteTable("guest_state", {
  onboardingCompleted: integer("onboarding_completed", {mode:"boolean"}).notNull().default(true),
+ profile: text("profile"),
  id: text("id").primaryKey(), targets: text("targets").notNull(), saved: text("saved").notNull(),
 });
 export const guestItems=sqliteTable('guest_items',{key:text('key').primaryKey(),guestId:text('guest_id').notNull(),itemId:text('item_id').notNull(),kind:text('kind').notNull(),payload:text('payload').notNull()},table=>[index('idx_guest_items_owner').on(table.guestId)]);

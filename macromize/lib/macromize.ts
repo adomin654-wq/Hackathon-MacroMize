@@ -1,11 +1,13 @@
+import { flexibleScore } from "./personal-profile.ts";
 import { z } from "zod";
 
 export const targetsSchema = z.object({
+  comparison:z.enum(["limits","flexible"]).default("limits"),
   mode:z.enum(["numeric","goal"]).default("numeric"), goal:z.string().max(100).default("High protein"),
-  carbs:z.number().min(0).max(500).nullable().default(null), fat:z.number().min(0).max(250).nullable().default(null),
+  carbs:z.number().min(0).max(2000).nullable().default(null), fat:z.number().min(0).max(500).nullable().default(null),
   budget:z.number().min(1).max(500).nullable().default(null), cuisine:z.string().max(80).default("Any"), openNow:z.boolean().default(false),
   remainingCalories:z.number().min(0).max(6000).nullable().default(null), laterMeal:z.string().max(300).default(""),
-  calories: z.number().min(100).max(3000), protein: z.number().min(0).max(250),
+  calories: z.number().min(100).max(10000), protein: z.number().min(0).max(700),
   radius: z.number().min(.5).max(20), mealType: z.enum(["Breakfast","Lunch","Dinner","Snack"]),
   diet: z.enum(["Any","Vegetarian","Vegan"]), exclusions: z.array(z.string().trim().min(1).max(80)).max(20),
 });
@@ -49,8 +51,8 @@ export function rankMeals(meals:Meal[], targets:Targets, location:{lat:number;lo
     .map(raw=>{
       const clean=(value:number|null)=>raw.nutritionStatus==="unknown"||value===null||!Number.isFinite(value)||value<0?null:value;
       const m={...raw,calories:clean(raw.calories),protein:clean(raw.protein),carbs:clean(raw.carbs),fat:clean(raw.fat)};
-      if(targets.carbs!=null&&(m.carbs===null||m.carbs>targets.carbs))return null;
-      if(targets.fat!=null&&(m.fat===null||m.fat>targets.fat))return null;
+      if(targets.comparison!=="flexible"&&targets.carbs!=null&&(m.carbs===null||m.carbs>targets.carbs))return null;
+      if(targets.comparison!=="flexible"&&targets.fat!=null&&(m.fat===null||m.fat>targets.fat))return null;
       const distance=distanceKm(location,m);const reasons:string[]=[];
       const calorieFit=m.calories===null?null:Math.max(0,1-Math.max(0,m.calories-targets.calories)/targets.calories);
       const proteinFit=m.protein===null?null:targets.protein===0?1:Math.min(1,m.protein/targets.protein);
@@ -61,7 +63,8 @@ export function rankMeals(meals:Meal[], targets:Targets, location:{lat:number;lo
       if(targets.mode!=="goal"&&m.protein!==null)reasons.push(m.protein>=targets.protein?"Reaches your protein target":`${Math.round(targets.protein-m.protein)} g below your protein target`);
       if(targets.diet!=="Any")reasons.push(`${targets.diet} requirement confirmed`);
       reasons.push(`${distance.toFixed(1)} km away (straight-line distance)`);
-      const score=calorieFit===null||proteinFit===null?null:Math.round(100*(.45*calorieFit+.45*proteinFit+.1*Math.max(0,1-distance/targets.radius)));
+      const score=targets.comparison==="flexible"?flexibleScore(m,targets,distance,targets.radius):calorieFit===null||proteinFit===null?null:Math.round(100*(.45*calorieFit+.45*proteinFit+.1*Math.max(0,1-distance/targets.radius)));
+      if(targets.comparison==="flexible"){reasons.splice(0,reasons.length,score===null?"Fit unknown — some nutrition is unavailable":"Compared with your flexible meal targets",...reasons.filter(reason=>!/(Within your calorie target|kcal above your target|Reaches your protein target|g below your protein target|Within your carbohydrate limit|Within your fat limit)/.test(reason)));}
       if(targets.budget!=null)reasons.push("Within your budget");
       if(targets.openNow)reasons.push(m.openingHours?"Open according to published hours; exceptions possible":"Recently confirmed open");
       if(m.sourceKind==="user-menu")reasons.push("From your menu · details confirmed by you");
@@ -72,7 +75,7 @@ export function rankMeals(meals:Meal[], targets:Targets, location:{lat:number;lo
         reasons.unshift(hasEvidence?(light?"A lower-energy option for your selected goal":"Prioritises protein for your selected goal"):"Nutrition evidence is missing for this goal");
         return {...m,score:null,sortValue,distanceKm:distance,reasons,exact:false,fitLabel:hasEvidence?"Goal fit":"Fit unknown"};
       }
-      return {...m,score,sortValue:score??-1,distanceKm:distance,reasons,exact:calorieFit===1&&proteinFit===1&&m.nutritionStatus==="verified"};
+      return {...m,score,sortValue:score??-1,distanceKm:distance,reasons,exact:(targets.comparison!=="flexible"||score===100)&&calorieFit===1&&proteinFit===1&&m.nutritionStatus==="verified"};
     }).filter((m):m is NonNullable<typeof m>=>m!==null).filter(m=>simple||m.distanceKm<=targets.radius).sort((a,b)=>(b.sortValue??-1)-(a.sortValue??-1)||a.distanceKm-b.distanceKm||a.id.localeCompare(b.id));
 }
 
@@ -85,5 +88,5 @@ export const intents = [
   {title:"A bigger dinner later",description:"A lighter meal now, with some protein.",calories:450,protein:30},
 ];
 
-export function simplifyTargets(t:Targets):Targets{return {...t,mode:'numeric',diet:t.diet==='Vegan'?'Vegan':'Any',mealType:'Lunch',radius:2,exclusions:[],budget:null,cuisine:'Any',openNow:false,remainingCalories:null,laterMeal:''};}
+export function simplifyTargets(t:Targets):Targets{return {...t,mode:'numeric',diet:t.diet,mealType:'Lunch',radius:2,exclusions:[],budget:null,cuisine:'Any',openNow:false,remainingCalories:null,laterMeal:''};}
 export function rankSimpleMeals(meals:Meal[],targets:Targets,location:{lat:number;lon:number}){return rankMeals(meals,simplifyTargets(targets),location,true);}

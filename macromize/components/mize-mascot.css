@@ -1,0 +1,12 @@
+.mize-mascot{display:inline-block;position:relative;flex-shrink:0;width:80px;height:104px;overflow:hidden}.personal-guide .mize-mascot{width:80px;height:104px}.personal-celebration .mize-mascot{width:185px;height:244px;margin:auto}.mize-greeting>.mize-mascot{width:140px;height:185px}.mize-mascot>img,.mize-mascot>video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;margin:0;animation:none}.mize-mascot>video{pointer-events:none;background:#f7f8f3}@media(max-width:380px){.personal-guide .mize-mascot{width:65px;height:86px}.mize-greeting>.mize-mascot{width:126px;height:166px}}
+
+.welcome .main-button.welcome-start{width:fit-content;min-width:190px;max-width:100%;margin:25px auto 0;gap:28px}
+
+.welcome .mize-greeting>p::after{top:-15px;bottom:auto;left:25px;border-width:16px 0 0 16px;border-color:transparent transparent transparent white}
+
+.mize-celebration-loop{width:210px;height:270px;margin:12px auto 0;padding-top:16px}
+.mize-celebration-loop img{width:100%;height:100%;object-fit:contain;transform-origin:50% 90%;animation:mize-joy-hop 2s ease-in-out infinite}
+@keyframes mize-joy-hop{0%,65%,100%{transform:translateY(0) rotate(0deg)}15%{transform:translateY(2px) scale(1.02,.98)}32%{transform:translateY(-14px) rotate(-3deg)}48%{transform:translateY(0) scale(1.02,.98)}56%{transform:translateY(-4px) rotate(2deg)}}
+@media(prefers-reduced-motion:reduce){.mize-celebration-loop img{animation:none}}
+
+.finder-title-row{flex-wrap:wrap;gap:10px}

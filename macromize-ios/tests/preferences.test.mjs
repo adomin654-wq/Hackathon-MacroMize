@@ -49,3 +49,12 @@ test('corrupted storage rejects reads and writes without overwriting existing by
  await assert.rejects(s.api.savePreferences(preferences.freshPreferences()));
  assert.equal(s.raw(),'corrupted');
 });
+
+test('personal profile is saved atomically, survives reload and can be erased',async()=>{
+ const profile={goal:'Build muscle',age:30,sex:'Male',height:180,weight:80,trainingDays:3,activity:'Mostly sitting',daily:{calories:2700,protein:160,fat:90,carbs:313},mealShare:1/3,calculationVersion:1};
+ const s=store();const state={...await s.api.loadPreferences(),profile,onboardingCompleted:true};await s.api.savePreferences(state);
+ assert.deepEqual((await s.api.loadPreferences()).profile,profile);s.fail(true);
+ await assert.rejects(s.api.savePreferences({...state,profile:{...profile,goal:'Lose weight'}}));assert.deepEqual((await s.api.loadPreferences()).profile,profile);s.fail(false);
+ await s.api.savePreferences({...state,profile:null,onboardingCompleted:false});assert.equal((await s.api.loadPreferences()).profile,null);
+ await assert.rejects(s.api.savePreferences({...state,profile:{...profile,mealShare:0}}));
+});
