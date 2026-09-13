@@ -359,4 +359,5 @@ export const intents = [
 ];
 
 export function simplifyTargets(t:Targets):Targets{return {...t,mode:'numeric',diet:t.diet==='Vegan'?'Vegan':'Any',mealType:'Lunch',radius:2,exclusions:[],budgetMax:null,cuisine:'Any',openNow:false,remainingCalories:null,laterMeal:''};}
-export function rankSimpleMeals(meals:Meal[],targets:Targets,location:Location){return rankMeals(meals,simplifyTargets(targets),location,Date.now(),true);}
+export function hasCompleteNutrition(meal:Meal){return meal.nutritionStatus!=='unknown'&&[meal.calories,meal.protein,meal.carbs,meal.fat].every(v=>typeof v==='number'&&Number.isFinite(v)&&v>=0)&&meal.calories!>0;}
+export function rankSimpleMeals(meals:Meal[],targets:Targets,location:Location){return rankMeals(meals.filter(hasCompleteNutrition),simplifyTargets(targets),location,Date.now(),true);}
