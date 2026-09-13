@@ -61,7 +61,8 @@ test("invalid nutrition is not scored; estimates remain labeled and cannot claim
   assert.equal(rankMeals([fixture({ protein: Infinity })], defaults, location)[0].score, null);
   const estimated = rankMeals([fixture({ nutritionStatus: "estimated" })], defaults, location)[0];
   assert.equal(estimated.exact, false);
-  assert.ok(estimated.reasons.includes("Nutrition is estimated"));
+  assert.equal(estimated.nutritionStatus, "estimated");
+  assert.ok(!estimated.reasons.includes("Nutrition is estimated"));
 });
 
 test("ranks quantified target fits before near matches and unknown nutrition without mutating inputs", () => {

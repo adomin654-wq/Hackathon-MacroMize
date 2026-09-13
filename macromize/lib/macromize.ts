@@ -54,7 +54,6 @@ export function rankMeals(meals:Meal[], targets:Targets, location:{lat:number;lo
       const distance=distanceKm(location,m);const reasons:string[]=[];
       const calorieFit=m.calories===null?null:Math.max(0,1-Math.max(0,m.calories-targets.calories)/targets.calories);
       const proteinFit=m.protein===null?null:targets.protein===0?1:Math.min(1,m.protein/targets.protein);
-      if(m.nutritionStatus==="estimated")reasons.push("Nutrition is estimated");
       if(m.calories===null)reasons.push("Calories unavailable");
       if(m.protein===null)reasons.push("Protein unavailable");
       if(targets.mode!=="goal"&&m.calories!==null)reasons.push(m.calories<=targets.calories?"Within your calorie target":`${Math.round(m.calories-targets.calories)} kcal above your target`);

@@ -310,7 +310,6 @@ export function rankMeals(meals: Meal[], input: Targets, location: Location, now
         else reasons.push(protein >= targets.protein ? "Reaches your protein target"
           : `${Math.round(targets.protein - protein)} g below your protein target`);
       }
-      if (meal.nutritionStatus === "estimated") reasons.push("Nutrition is estimated");
       if (meal.provenance === "user") reasons.push("Menu entered by you; not independently verified");
       if (targets.diet !== "Any") reasons.push(`${targets.diet} requirement confirmed`);
       if (targets.exclusions.length) reasons.push("Your ingredient exclusions are confirmed by the source");
