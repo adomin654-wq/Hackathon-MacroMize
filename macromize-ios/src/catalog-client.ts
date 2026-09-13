@@ -25,6 +25,7 @@ function parseMeals(input:unknown):{status:string;meals:CatalogMeal[]}{
    lat:num('lat',-90,90)!,lon:num('lon',-180,180)!,ingredients:list('ingredients'),ingredientsComplete:false,
    dietary,excludedIngredientChecks:null,mealTypes,calories:nutrition('calories'),protein:nutrition('protein'),carbs:nutrition('carbs'),fat:nutrition('fat'),
    nutritionStatus:status,nutritionSource:link(m.nutritionSource),confidence:status==='estimated'?'Low':null,
+   estimationMethod:status==='estimated'&&m.estimationMethod==='ai'?'ai':status==='verified'?'published':'unknown',
    assumptions:typeof m.assumptions==='string'?m.assumptions.slice(0,1500):null,
    price:typeof m.price==='string'?m.price.slice(0,100):null,priceAmount,currency:m.currency==='EUR'?'EUR':'',cuisine:typeof m.cuisine==='string'?m.cuisine.slice(0,80):'',
    imageUrl:link(m.imageUrl),available:m.available as boolean|null};

@@ -5,6 +5,7 @@ export type CatalogMeal = {
  excludedIngredientChecks:Record<string,boolean>|null; mealTypes:string[];
  calories:number|null; protein:number|null; carbs:number|null; fat:number|null;
  nutritionStatus:'verified'|'estimated'|'unknown'; nutritionSource:string|null;
+ estimationMethod?:'published'|'user'|'ai'|'unknown';
  confidence:'High'|'Medium'|'Low'|null; assumptions:string|null;
  price:string|null; priceAmount:number|null; currency:string; cuisine:string;
  imageUrl:string|null; available:boolean|null;
@@ -51,7 +52,8 @@ export function adaptPilotCatalog(input:unknown):CatalogMeal[]{
   const snack=/SWEET|NACHSPEIS|DIPS|BEILAGEN|FINGERFOOD/.test(category);
   // Chain-exclusive Express products are not branch inventory at Jungfernstieg.
   const express=/nur in express stores/i.test(name);
-  const notes=[text(raw.description),text(n?.portion_label),...strings(raw.quality_notes)];
+  const assumptions=record(n?.assumptions)?n.assumptions:null;
+  const notes=estimated?[n?.method==='ai_estimated'?'KI-geschätzt anhand von Titel und Beschreibung; keine bestätigten Restaurantwerte.':'Aus einer Rezeptannahme berechnet; keine bestätigten Restaurantwerte.',text(n?.portion_label),...strings(assumptions?.notes),text(raw.description),...strings(raw.quality_notes).map(note=>note.replace('Nährwerte und Portionsgrößen unbekannt.', 'Restaurant-Nährwerte und tatsächliche Portionsgrößen nicht bestätigt.'))]:[text(raw.description),text(n?.portion_label),...strings(raw.quality_notes)];
   if(n&&!approved)notes.push('Chain nutrition awaits review; no numerical match is calculated from it.');
   if(raw.source_scope==='chain')notes.push('Chain menu: branch availability and price are not confirmed.');
   if(express)notes.push('Express-only item; excluded from this branch’s recommendations.');
@@ -63,6 +65,7 @@ export function adaptPilotCatalog(input:unknown):CatalogMeal[]{
    mealTypes:snack?['Snack']:['Lunch','Dinner'],
    calories:usable?values[0]:null,protein:usable?values[1]:null,carbs:usable?values[2]:null,fat:usable?values[3]:null,
    nutritionStatus:published?'verified':estimated?'estimated':'unknown',nutritionSource:url(n?.source),
+   estimationMethod:published?'published':estimated&&n?.method==='ai_estimated'?'ai':'unknown',
    confidence:estimated?'Low':null,assumptions:notes.filter(Boolean).join(' ').slice(0,1500)||null,
    price:priceAmount===null?null:`${priceAmount.toFixed(2)} €${raw.price_scope==='chain'?' · chain price':''}`,
    priceAmount,currency:'EUR',cuisine:venue.cuisine,imageUrl:null,available:express?false:null};

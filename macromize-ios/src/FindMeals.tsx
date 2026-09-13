@@ -46,7 +46,7 @@ export default function FindMeals(p:Props){
    {visibleMatches.map((m,i)=><View key={m.id} style={[s.card,{width:isList?width-40:cardWidth}]}>
     <Pressable accessibilityRole="button" accessibilityLabel={`View details for ${m.name}`} onPress={()=>{p.onSelect(m);p.onOpen(m);}} style={s.compactMeal}>
      {m.imageUrl?<Image source={{uri:m.imageUrl}} style={s.compactPhoto}/>:<View style={[s.compactPhoto,s.noPhoto]}><Ionicons name="restaurant-outline" size={24} color={green}/><Text style={{fontSize:10,color:green}}>No photo</Text></View>}
-     <View style={s.compactInfo}><Text numberOfLines={2} style={s.compactTitle}>{m.name}</Text><Text numberOfLines={1} style={s.compactRestaurant}>{m.restaurant}</Text><Text style={s.compactMacros}>{m.calories??'—'} kcal · {m.protein??'—'} g protein · {m.distanceKm.toFixed(1)} km</Text>{m.nutritionStatus!=='verified'&&<Text style={{fontSize:10,color:'#63705D'}}>{m.nutritionStatus==='unknown'?'Nutrition unknown':'Estimated nutrition'}</Text>}</View>
+     <View style={s.compactInfo}><Text numberOfLines={2} style={s.compactTitle}>{m.name}</Text><Text numberOfLines={1} style={s.compactRestaurant}>{m.restaurant}</Text><Text style={s.compactMacros}>{m.calories??'—'} kcal · {m.protein??'—'} g protein · {m.distanceKm.toFixed(1)} km</Text>{m.nutritionStatus!=='verified'&&<Text style={{fontSize:10,color:'#63705D'}}>{m.nutritionStatus==='unknown'?'Nutrition unknown':m.estimationMethod==='ai'?'KI-geschätzt':'Estimated nutrition'}</Text>}</View>
      <View style={{position:'absolute',right:0,top:0}}><AvocadoScore score={m.score}/></View>
     </Pressable>
    </View>)}

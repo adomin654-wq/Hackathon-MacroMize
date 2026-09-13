@@ -21,7 +21,7 @@ Deno.serve(async(req:Request)=>{
     case when n.id is null then null else jsonb_build_object(
      'kcal',n.calories_kcal,'protein',n.protein_g,'carbs',n.carbs_g,'fat',n.fat_g,
      'source',n.evidence_url,'portion_label',n.portion_label,'method',n.method,
-     'review_status',n.review_status,'is_current',n.is_current) end as nutrition
+     'review_status',n.review_status,'is_current',n.is_current,'assumptions',n.assumptions) end as nutrition
     from makromize.dishes d join makromize.restaurants r on r.id=d.restaurant_id
     join makromize.sources s on s.id=d.source_id
     left join lateral (select * from makromize.nutrition_versions nv where nv.dish_id=d.id order by nv.version desc limit 1) n on true

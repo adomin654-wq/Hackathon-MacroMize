@@ -29,5 +29,11 @@ test('compact recommendations open details and keep save and website actions out
 test('header exposes four directly editable numeric fields and scored meals have an accessible compact score',()=>{
  const html=render([{...meal,score:97}]);assert.equal((html.match(/<input /g)??[]).length,4);assert.match(html,/Match score 97 out of 100/);assert.match(html,/class="small-avocado"/);
 });
+test('AI nutrition is visibly labelled on both recommendation layouts',()=>{
+ for(const layout of ['map','list']){
+  const html=render([{...meal,nutritionStatus:'estimated',estimationMethod:'ai',calories:600,protein:30,carbs:60,fat:27,score:85}],layout);
+  assert.match(html,/KI-geschätzt/);assert.match(html,/600/);assert.match(html,/Match score 85 out of 100/);assert.doesNotMatch(html,/Published nutrition/);
+ }
+});
 
 test('list view renders every compact meal vertically without map-slider controls',()=>{const html=render(Array.from({length:12},(_,i)=>({...meal,id:`meal-${i}`})),'list');assert.equal((html.match(/<article /g)??[]).length,12);assert.match(html,/class="recommendation-list"/);assert.doesNotMatch(html,/Next recommendation|class="finder-map"/);assert.match(html,/12 meals/);assert.doesNotMatch(html,/Search this area/);});

@@ -41,7 +41,7 @@ export default function FindMeals(p:Props) {
     {visibleMatches.map((meal,i)=><article className="recommendation-card" key={meal.id} aria-label={`Recommendation ${i+1} of ${visibleMatches.length}`}>
      <button className="compact-meal" onClick={()=>{p.onSelect(meal);p.onOpen(meal);}} aria-label={`View details for ${meal.name}`}>
       {meal.imageUrl?<img className="compact-photo" src={meal.imageUrl} alt=""/>:<span className="compact-photo photo-unavailable"><Utensils size={24}/><small>No photo</small></span>}
-      <span className="compact-info"><span className="compact-title">{meal.name}</span><span className="compact-restaurant">{meal.restaurant}</span><span className="compact-macros">{meal.calories??'—'} kcal · {meal.protein??'—'} g protein · {meal.distanceKm.toFixed(1)} km</span>{meal.nutritionStatus!=='verified'&&<small>{meal.nutritionStatus==='unknown'?'Nutrition unknown':'Estimated nutrition'}</small>}</span>
+      <span className="compact-info"><span className="compact-title">{meal.name}</span><span className="compact-restaurant">{meal.restaurant}</span><span className="compact-macros">{meal.calories??'—'} kcal · {meal.protein??'—'} g protein · {meal.distanceKm.toFixed(1)} km</span>{meal.nutritionStatus!=='verified'&&<small>{meal.nutritionStatus==='unknown'?'Nutrition unknown':meal.estimationMethod==='ai'?'KI-geschätzt':'Estimated nutrition'}</small>}</span>
       <span className="compact-score"><AvocadoScore score={meal.score}/></span>
      </button>
     </article>)}

@@ -53,6 +53,7 @@ export type Meal = {
   sourceKind?: "url" | "photo" | "text";
   sourceReference?: string;
   provenance?: "restaurant" | "user";
+  estimationMethod?: "published" | "user" | "ai" | "unknown";
   evidenceText?: string | null;
   sourcePhotoUri?: string | null;
 };
