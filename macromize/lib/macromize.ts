@@ -38,14 +38,14 @@ export function isOpenAt(m:Meal,now=new Date()){
  const hours=m.openingHours;if(!hours||!/^https:\/\//.test(hours.source)||!Number.isFinite(Date.parse(hours.checkedAt))||now.getTime()-Date.parse(hours.checkedAt)>30*86400000)return false;
  try{const parts=new Intl.DateTimeFormat('en-GB',{timeZone:hours.timezone,weekday:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(now);const part=(type:string)=>parts.find(p=>p.type===type)?.value??'';const day=part('weekday'),minute=Number(part('hour'))*60+Number(part('minute'));const toMinutes=(v:string)=>Number(v.split(':')[0])*60+Number(v.split(':')[1]);return (hours.weekly[day]??[]).some(([start,end])=>minute>=toMinutes(start)&&minute<toMinutes(end));}catch{return false;}
 }
-export function rankMeals(meals:Meal[], targets:Targets, location:{lat:number;lon:number}):Match[]{
+export function rankMeals(meals:Meal[], targets:Targets, location:{lat:number;lon:number}, simple=false):Match[]{
   return meals.filter(m=>hasSource(m)&&m.available!==false)
     .filter(m=>targets.budget==null||(m.currency==="EUR"&&m.priceAmount!=null&&m.priceAmount<=targets.budget))
     .filter(m=>!targets.cuisine||targets.cuisine==="Any"||m.cuisine?.toLowerCase()===targets.cuisine.toLowerCase())
     .filter(m=>!targets.openNow||isOpenAt(m))
     .filter(m=>targets.diet==="Any"||m.dietary?.includes(targets.diet.toLowerCase())||(targets.diet==="Vegetarian"&&m.dietary?.includes("vegan")))
     .filter(m=>targets.exclusions.every(e=>m.excludedIngredientChecks?.[e.toLowerCase()]===true&&!m.ingredients?.some(i=>i.trim().toLowerCase()===e.trim().toLowerCase())))
-    .filter(m=>m.mealTypes.includes(targets.mealType))
+    .filter(m=>simple||m.mealTypes.includes(targets.mealType))
     .map(raw=>{
       const clean=(value:number|null)=>raw.nutritionStatus==="unknown"||value===null||!Number.isFinite(value)||value<0?null:value;
       const m={...raw,calories:clean(raw.calories),protein:clean(raw.protein),carbs:clean(raw.carbs),fat:clean(raw.fat)};
@@ -73,7 +73,7 @@ export function rankMeals(meals:Meal[], targets:Targets, location:{lat:number;lo
         return {...m,score:null,sortValue,distanceKm:distance,reasons,exact:false,fitLabel:hasEvidence?"Goal fit":"Fit unknown"};
       }
       return {...m,score,sortValue:score??-1,distanceKm:distance,reasons,exact:calorieFit===1&&proteinFit===1&&m.nutritionStatus==="verified"};
-    }).filter((m):m is NonNullable<typeof m>=>m!==null).filter(m=>m.distanceKm<=targets.radius).sort((a,b)=>(b.sortValue??-1)-(a.sortValue??-1));
+    }).filter((m):m is NonNullable<typeof m>=>m!==null).filter(m=>simple||m.distanceKm<=targets.radius).sort((a,b)=>(b.sortValue??-1)-(a.sortValue??-1)||a.distanceKm-b.distanceKm||a.id.localeCompare(b.id));
 }
 
 export const intents = [
@@ -84,3 +84,6 @@ export const intents = [
   {title:"Build muscle",description:"More room for energy and protein.",calories:800,protein:45},
   {title:"A bigger dinner later",description:"A lighter meal now, with some protein.",calories:450,protein:30},
 ];
+
+export function simplifyTargets(t:Targets):Targets{return {...t,mode:'numeric',diet:t.diet==='Vegan'?'Vegan':'Any',mealType:'Lunch',radius:2,exclusions:[],budget:null,cuisine:'Any',openNow:false,remainingCalories:null,laterMeal:''};}
+export function rankSimpleMeals(meals:Meal[],targets:Targets,location:{lat:number;lon:number}){return rankMeals(meals,simplifyTargets(targets),location,true);}

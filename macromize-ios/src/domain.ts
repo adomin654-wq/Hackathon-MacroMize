@@ -267,7 +267,7 @@ function confirmsExclusion(meal: Meal, exclusion: string): boolean {
 }
 
 /** Required filters fail closed when evidence is missing. Numeric targets rank; goals use qualitative evidence. */
-export function rankMeals(meals: Meal[], input: Targets, location: Location, now = Date.now()): Match[] {
+export function rankMeals(meals: Meal[], input: Targets, location: Location, now = Date.now(), simple=false): Match[] {
   const targets = validateTargets(input);
   if (!validLocation(location)) throw new Error("The location could not be read. Please try again.");
   if (!Number.isFinite(now)) throw new Error("The current time could not be read.");
@@ -280,7 +280,7 @@ export function rankMeals(meals: Meal[], input: Targets, location: Location, now
         || (targets.diet === "Vegetarian" && dietary?.includes("vegan"));
     })
     .filter((meal) => targets.exclusions.every((exclusion) => confirmsExclusion(meal, exclusion)))
-    .filter((meal) => meal.mealTypes.includes(targets.mealType))
+    .filter((meal) => simple || meal.mealTypes.includes(targets.mealType))
     .filter((meal) => targets.cuisine === "Any" || meal.cuisine?.trim().toLowerCase() === targets.cuisine.toLowerCase())
     .filter((meal) => targets.budgetMax === null || (typeof meal.priceAmount === "number" && Number.isFinite(meal.priceAmount)
       && meal.priceAmount >= 0 && meal.priceAmount <= targets.budgetMax && meal.currency?.toUpperCase() === "EUR"))
@@ -336,7 +336,7 @@ export function rankMeals(meals: Meal[], input: Targets, location: Location, now
         goalFit: goal?.fit ?? null,
       };
     })
-    .filter((meal) => meal.distanceKm <= targets.radius)
+    .filter((meal) => simple || meal.distanceKm <= targets.radius)
     .sort((a, b) => {
       if (targets.mode === "goal") {
         const quality = { Strong: 3, Possible: 2, Limited: 1, Unknown: 0 };
@@ -357,3 +357,6 @@ export const intents = [
   { title: "Build muscle", description: "More room for energy and protein.", calories: 800, protein: 45 },
   { title: "A bigger dinner later", description: "A lighter meal now, with some protein.", calories: 450, protein: 30 },
 ];
+
+export function simplifyTargets(t:Targets):Targets{return {...t,mode:'numeric',diet:t.diet==='Vegan'?'Vegan':'Any',mealType:'Lunch',radius:2,exclusions:[],budgetMax:null,cuisine:'Any',openNow:false,remainingCalories:null,laterMeal:''};}
+export function rankSimpleMeals(meals:Meal[],targets:Targets,location:Location){return rankMeals(meals,simplifyTargets(targets),location,Date.now(),true);}
