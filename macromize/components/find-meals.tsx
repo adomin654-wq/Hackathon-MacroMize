@@ -1,4 +1,6 @@
 "use client";
+import DishIllustration from './dish-illustration';
+
 import AvocadoScore from './avocado-score';
 import { useEffect, useRef, type ReactNode } from 'react';
 import {Utensils, Leaf, Map as MapIcon, List as ListIcon} from 'lucide-react';
@@ -40,7 +42,7 @@ export default function FindMeals(p:Props) {
    <div ref={slider} className={isList?"recommendation-list":"recommendation-slider"} role="region" aria-label="Recommended meals" tabIndex={0} onKeyDown={e=>{if(isList||e.target!==e.currentTarget||!['ArrowLeft','ArrowRight'].includes(e.key))return;e.preventDefault();const next=visibleMatches[index+(e.key==='ArrowRight'?1:-1)];if(next)select(next);}} onScroll={()=>{if(isList)return;const el=slider.current;if(!el||!el.children.length)return;const children=Array.from(el.children) as HTMLElement[];const closest=children.reduce((best,c,i)=>Math.abs(c.offsetLeft-el.offsetLeft-el.scrollLeft)<Math.abs(children[best].offsetLeft-el.offsetLeft-el.scrollLeft)?i:best,0);if(visibleMatches[closest]?.id!==active?.id)p.onSelect(visibleMatches[closest]);}}>
     {visibleMatches.map((meal,i)=><article className="recommendation-card" key={meal.id} aria-label={`Recommendation ${i+1} of ${visibleMatches.length}`}>
      <button className="compact-meal" onClick={()=>{p.onSelect(meal);p.onOpen(meal);}} aria-label={`View details for ${meal.name}`}>
-      {meal.imageUrl?<img className="compact-photo" src={meal.imageUrl} alt=""/>:<span className="compact-photo photo-unavailable"><Utensils size={24}/><small>No photo</small></span>}
+      {meal.imageUrl?<img className="compact-photo" src={meal.imageUrl} alt=""/>:<DishIllustration meal={meal}/>}
       <span className="compact-info"><span className="compact-title">{meal.name}</span><span className="compact-restaurant">{meal.restaurant}</span><span className="compact-macros">{meal.calories??'—'} kcal · {meal.protein??'—'} g protein · {meal.distanceKm.toFixed(1)} km</span>{meal.nutritionStatus!=='verified'&&<small>{meal.nutritionStatus==='unknown'?'Nutrition unknown':meal.estimationMethod==='ai'?'KI-geschätzt':'Estimated nutrition'}</small>}</span>
       <span className="compact-score"><AvocadoScore score={meal.score}/></span>
      </button>

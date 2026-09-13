@@ -8,7 +8,7 @@ export type CatalogMeal = {
  estimationMethod?:'published'|'user'|'ai'|'unknown';
  confidence:'High'|'Medium'|'Low'|null; assumptions:string|null;
  price:string|null; priceAmount:number|null; currency:string; cuisine:string;
- imageUrl:string|null; imageSourceUrl?:string|null; imageAttribution?:string|null; available:boolean|null;
+ illustrationCategory?:string; imageUrl:string|null; imageSourceUrl?:string|null; imageAttribution?:string|null; available:boolean|null;
 };
 type RecordValue = Record<string,unknown>;
 const record=(v:unknown):v is RecordValue=>!!v&&typeof v==='object'&&!Array.isArray(v);
@@ -69,7 +69,7 @@ export function adaptPilotCatalog(input:unknown):CatalogMeal[]{
    estimationMethod:published?'published':estimated&&n?.method==='ai_estimated'?'ai':'unknown',
    confidence:estimated?'Low':null,assumptions:notes.filter(Boolean).join(' ').slice(0,1500)||null,
    price:priceAmount===null?null:`${priceAmount.toFixed(2)} €${raw.price_scope==='chain'?' · chain price':''}`,
-   priceAmount,currency:'EUR',cuisine:venue.cuisine,imageUrl:photo?url(photo.url):null,imageSourceUrl:photo?url(photo.source_url):null,imageAttribution:photo?text(photo.attribution,150):null,available:express?false:null};
+   priceAmount,currency:'EUR',cuisine:venue.cuisine,illustrationCategory:text(raw.illustration_category,20),imageUrl:photo?url(photo.url):null,imageSourceUrl:photo?url(photo.source_url):null,imageAttribution:photo?text(photo.attribution,150):null,available:express?false:null};
  }).filter((m):m is CatalogMeal=>m!==null);
 }
 

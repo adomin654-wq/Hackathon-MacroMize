@@ -41,6 +41,7 @@ export type Meal = {
   confidence: "High" | "Medium" | "Low" | null;
   assumptions: string | null;
   price: string | null;
+  illustrationCategory?: string;
   imageUrl: string | null;
   imageSourceUrl?: string | null;
   imageAttribution?: string | null;

@@ -1,3 +1,4 @@
+import DishIllustration from './DishIllustration';
 import AvocadoScore from './AvocadoScore';
 import React, {useEffect, useRef, useState} from 'react';
 import {Image, Platform, Pressable, ScrollView, Switch, StyleSheet, Text, TextInput, View, useWindowDimensions} from 'react-native';
@@ -45,7 +46,7 @@ export default function FindMeals(p:Props){
   <ScrollView key={p.layout} ref={slider} horizontal={!isList} scrollEnabled={!isList} nestedScrollEnabled snapToInterval={isList?undefined:stride} decelerationRate="fast" showsHorizontalScrollIndicator={false} contentContainerStyle={[s.slider,isList&&{flexDirection:'column'}]} onMomentumScrollEnd={e=>{if(isList)return;const i=Math.min(visibleMatches.length-1,Math.max(0,Math.round(e.nativeEvent.contentOffset.x/stride)));if(visibleMatches[i])p.onSelect(visibleMatches[i]);}}>
    {visibleMatches.map((m,i)=><View key={m.id} style={[s.card,{width:isList?width-40:cardWidth}]}>
     <Pressable accessibilityRole="button" accessibilityLabel={`View details for ${m.name}`} onPress={()=>{p.onSelect(m);p.onOpen(m);}} style={s.compactMeal}>
-     {m.imageUrl?<Image source={{uri:m.imageUrl}} style={s.compactPhoto}/>:<View style={[s.compactPhoto,s.noPhoto]}><Ionicons name="restaurant-outline" size={24} color={green}/><Text style={{fontSize:10,color:green}}>No photo</Text></View>}
+     {m.imageUrl?<Image source={{uri:m.imageUrl}} style={s.compactPhoto}/>:<DishIllustration meal={m}/>}
      <View style={s.compactInfo}><Text numberOfLines={2} style={s.compactTitle}>{m.name}</Text><Text numberOfLines={1} style={s.compactRestaurant}>{m.restaurant}</Text><Text style={s.compactMacros}>{m.calories??'—'} kcal · {m.protein??'—'} g protein · {m.distanceKm.toFixed(1)} km</Text>{m.nutritionStatus!=='verified'&&<Text style={{fontSize:10,color:'#63705D'}}>{m.nutritionStatus==='unknown'?'Nutrition unknown':m.estimationMethod==='ai'?'KI-geschätzt':'Estimated nutrition'}</Text>}</View>
      <View style={{position:'absolute',right:0,top:0}}><AvocadoScore score={m.score}/></View>
     </Pressable>
