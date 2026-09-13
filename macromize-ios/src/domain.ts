@@ -43,7 +43,10 @@ export type Meal = {
   confidence: "High" | "Medium" | "Low" | null;
   assumptions: string | null;
   price: string | null;
+  illustrationCategory?: string;
   imageUrl: string | null;
+  imageSourceUrl?: string | null;
+  imageAttribution?: string | null;
   available: boolean | null;
   priceAmount?: number | null;
   currency?: string | null;
@@ -55,6 +58,7 @@ export type Meal = {
   sourceKind?: "url" | "photo" | "text";
   sourceReference?: string;
   provenance?: "restaurant" | "user";
+  estimationMethod?: "published" | "user" | "ai" | "unknown";
   evidenceText?: string | null;
   sourcePhotoUri?: string | null;
 };
@@ -311,7 +315,6 @@ export function rankMeals(meals: Meal[], input: Targets, location: Location, now
         else reasons.push(protein >= targets.protein ? "Reaches your protein target"
           : `${Math.round(targets.protein - protein)} g below your protein target`);
       }
-      if (meal.nutritionStatus === "estimated") reasons.push("Nutrition is estimated");
       if (meal.provenance === "user") reasons.push("Menu entered by you; not independently verified");
       if (targets.diet !== "Any") reasons.push(`${targets.diet} requirement confirmed`);
       if (targets.exclusions.length) reasons.push("Your ingredient exclusions are confirmed by the source");
@@ -364,4 +367,5 @@ export const intents = [
 ];
 
 export function simplifyTargets(t:Targets):Targets{return {...t,mode:'numeric',diet:t.diet,mealType:'Lunch',radius:2,exclusions:[],budgetMax:null,cuisine:'Any',openNow:false,remainingCalories:null,laterMeal:''};}
-export function rankSimpleMeals(meals:Meal[],targets:Targets,location:Location){return rankMeals(meals,simplifyTargets(targets),location,Date.now(),true);}
+export function hasCompleteNutrition(meal:Meal){return meal.nutritionStatus!=='unknown'&&[meal.calories,meal.protein,meal.carbs,meal.fat].every(v=>typeof v==='number'&&Number.isFinite(v)&&v>=0)&&meal.calories!>0;}
+export function rankSimpleMeals(meals:Meal[],targets:Targets,location:Location){return rankMeals(meals.filter(hasCompleteNutrition),simplifyTargets(targets),location,Date.now(),true);}

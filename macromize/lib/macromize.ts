@@ -20,7 +20,7 @@ export type Meal = {
   mealTypes:string[]; calories:number|null; protein:number|null; carbs:number|null; fat:number|null;
   nutritionStatus:"verified"|"estimated"|"unknown"; nutritionSource:string|null;
   confidence:"High"|"Medium"|"Low"|null; assumptions:string|null;
-  price:string|null; imageUrl:string|null; available:boolean|null;
+  price:string|null; illustrationCategory?:string; imageUrl:string|null; imageSourceUrl?:string|null; imageAttribution?:string|null; available:boolean|null;
   restaurantId?:string; priceAmount?:number|null; currency?:string; cuisine?:string;
   openingHours?:{timezone:string;source:string;checkedAt:string;weekly:Record<string,[string,string][]>};
   openingStatus?:"open"|"closed"|"unknown"; openingCheckedAt?:string|null;
@@ -56,7 +56,6 @@ export function rankMeals(meals:Meal[], targets:Targets, location:{lat:number;lo
       const distance=distanceKm(location,m);const reasons:string[]=[];
       const calorieFit=m.calories===null?null:Math.max(0,1-Math.max(0,m.calories-targets.calories)/targets.calories);
       const proteinFit=m.protein===null?null:targets.protein===0?1:Math.min(1,m.protein/targets.protein);
-      if(m.nutritionStatus==="estimated")reasons.push("Nutrition is estimated");
       if(m.calories===null)reasons.push("Calories unavailable");
       if(m.protein===null)reasons.push("Protein unavailable");
       if(targets.mode!=="goal"&&m.calories!==null)reasons.push(m.calories<=targets.calories?"Within your calorie target":`${Math.round(m.calories-targets.calories)} kcal above your target`);
@@ -89,4 +88,5 @@ export const intents = [
 ];
 
 export function simplifyTargets(t:Targets):Targets{return {...t,mode:'numeric',diet:t.diet,mealType:'Lunch',radius:2,exclusions:[],budget:null,cuisine:'Any',openNow:false,remainingCalories:null,laterMeal:''};}
-export function rankSimpleMeals(meals:Meal[],targets:Targets,location:{lat:number;lon:number}){return rankMeals(meals,simplifyTargets(targets),location,true);}
+export function hasCompleteNutrition(meal:Meal){return meal.nutritionStatus!=='unknown'&&[meal.calories,meal.protein,meal.carbs,meal.fat].every(v=>typeof v==='number'&&Number.isFinite(v)&&v>=0)&&meal.calories!>0;}
+export function rankSimpleMeals(meals:Meal[],targets:Targets,location:{lat:number;lon:number}){return rankMeals(meals.filter(hasCompleteNutrition),simplifyTargets(targets),location,true);}

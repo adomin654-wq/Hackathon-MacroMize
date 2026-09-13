@@ -135,3 +135,5 @@ Native device playback still needs an iPhone check; the Windows export verifies
 the JavaScript bundle and bundled assets rather than AVPlayer behavior.
 
 Celebration uses a separate generated Mize pose with both arms raised and a gentle two-second repeating hop (CSS on web, Animated on native). Reduced motion shows the still pose. The READY WHEN YOU ARE eyebrow is removed. The locally bundled celebration image uses the app background color.
+
+Integration with main: recommendations now require complete nutrition, including for flexible targets; records with missing nutrition are excluded from recommendations by the shared main-branch eligibility rule. Flexible scoring still permits macro excesses.

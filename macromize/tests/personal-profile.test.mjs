@@ -22,15 +22,15 @@ test('invalid or implausible inputs reject; exact third and full day are retaine
 });
 const location={lat:53.55,lon:10};
 const meal={id:'fixture',name:'Fixture',restaurant:'Fixture',menuUrl:'https://example.com/menu',checkedAt:new Date().toISOString(),...location,dietary:['vegan'],mealTypes:['Lunch'],ingredients:null,ingredientsComplete:false,excludedIngredientChecks:null,calories:600,protein:40,fat:20,carbs:65,nutritionStatus:'verified',available:true};
-for(const [name,app] of [['web',web],['native',native]])test(`${name}: flexible targets rank all macros and retain excess/missing nutrition; legacy limits remain`,()=>{
+for(const [name,app] of [['web',web],['native',native]])test(`${name}: flexible targets rank all macros and retain excess and require complete nutrition; legacy limits remain`,()=>{
  const t={...app.defaults,comparison:'flexible',calories:600,protein:40,fat:20,carbs:65,fatMax:20,carbsMax:65};
  assert.equal(app.rankSimpleMeals([meal],t,location)[0].score,100);
  for(const key of ['calories','protein','fat','carbs']){
  const result=app.rankSimpleMeals([{...meal,[key]:meal[key]*1.2}],t,location);assert.equal(result.length,1);assert.ok(result[0].score<100);
- const missing=app.rankSimpleMeals([{...meal,[key]:null}],t,location);assert.equal(missing.length,1);assert.equal(missing[0].score,null);
+ const missing=app.rankSimpleMeals([{...meal,[key]:null}],t,location);assert.equal(missing.length,0);
  }
  assert.equal(app.rankSimpleMeals([{...meal,fat:21}],{...t,comparison:'limits'},location).length,0);
- assert.equal(app.rankSimpleMeals([{...meal,nutritionStatus:'unknown'}],t,location)[0].score,null);
+ assert.equal(app.rankSimpleMeals([{...meal,nutritionStatus:'unknown'}],t,location).length,0);
 });
 
 
